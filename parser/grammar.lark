@@ -1,0 +1,147 @@
+// ─────────────────────────────────────────────
+// GRAMÁTICA PARA EL PSEUDOCÓDIGO DEL PROYECTO
+// Compatible con: FOR, WHILE, REPEAT, IF, CALL,
+// asignaciones, objetos, arreglos, clases, etc.
+// ─────────────────────────────────────────────
+
+start: program
+
+program: statement+
+
+// ──────────────────────────
+// SENTENCIAS PRINCIPALES
+// ──────────────────────────
+
+statement: assignment
+         | for_loop
+         | while_loop
+         | repeat_loop
+         | if_statement
+         | call
+         | class_decl
+         | object_decl
+         | subroutine_decl
+         | COMMENT
+
+// ──────────────────────────
+// ASIGNACIONES
+// ──────────────────────────
+assignment: variable ASSIGN expr
+
+// El símbolo especial "🡨" se define como token ASSIGN
+ASSIGN: "🡨"
+
+// Variables incluyendo campos de objetos y acceso a arreglos
+variable: NAME
+        | NAME "." NAME
+        | NAME array_index
+
+array_index: "[" index_range "]"
+index_range: expr (".." expr)?
+
+// ──────────────────────────
+// CICLO FOR
+// Sintaxis: for <variableContadora> 🡨 <valorInicial> to <limite> do block
+// ──────────────────────────
+for_loop: "for" NAME ASSIGN expr "to" expr "do" block
+
+// ──────────────────────────
+// CICLO WHILE
+// ──────────────────────────
+while_loop: "while" "(" condition ")" "do" block
+
+// ──────────────────────────
+// CICLO REPEAT UNTIL
+// ──────────────────────────
+repeat_loop: "repeat" block "until" "(" condition ")"
+
+// ──────────────────────────
+// SENTENCIA IF / THEN / ELSE
+// ──────────────────────────
+if_statement: "if" "(" condition ")" "then" block ("else" block)?
+
+// ──────────────────────────
+// BLOQUES BEGIN ... END
+// ──────────────────────────
+block: "begin" statement* "end"
+
+// ──────────────────────────
+// LLAMADO A SUBRUTINAS
+// ──────────────────────────
+call: "CALL" NAME "(" arg_list? ")"
+
+arg_list: expr ("," expr)*
+
+// ──────────────────────────
+// DECLARACIÓN DE CLASES
+// Casa {area color propietario}
+// ──────────────────────────
+class_decl: NAME "{" class_attr* "}"
+
+class_attr: NAME
+
+// ──────────────────────────
+// OBJETOS: Clase nombre
+// ──────────────────────────
+object_decl: NAME NAME
+
+// ──────────────────────────
+// SUBRUTINAS
+// ──────────────────────────
+subroutine_decl: NAME "(" param_list? ")" block
+
+param_list: param ("," param)*
+
+param: NAME
+     | NAME array_dims
+     | NAME NAME      // Clase objeto
+
+array_dims: ("[" expr? "]")+
+
+// ──────────────────────────
+// EXPRESIONES LÓGICAS
+// ──────────────────────────
+condition: or_expr
+
+or_expr: and_expr
+       | or_expr "or" and_expr
+
+and_expr: not_expr
+        | and_expr "and" not_expr
+
+not_expr: comparison
+         | "not" not_expr
+
+comparison: expr (REL_OP expr)?
+
+REL_OP: "<" | ">" | "<=" | ">=" | "=" | "≠"
+
+// ──────────────────────────
+// EXPRESIONES MATEMÁTICAS
+// ──────────────────────────
+expr: term
+    | expr "+" term
+    | expr "-" term
+
+term: factor
+    | term "*" factor
+    | term "/" factor
+    | term "mod" factor
+    | term "div" factor
+
+factor: NUMBER
+      | NAME
+      | variable
+      | "(" expr ")"
+
+// ──────────────────────────
+// TOKENS BÁSICOS
+// ──────────────────────────
+NAME: /[A-Za-z][A-Za-z0-9_]*/
+
+NUMBER: /\d+/
+
+COMMENT: "►" /[^\n]*/   -> skip
+
+%import common.WS
+%ignore WS
