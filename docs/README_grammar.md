@@ -1,6 +1,6 @@
 # Documentación de la Gramática Lark
 
-Este documento explica en detalle la gramática definida en `parser/grammar.lark`, que describe el pseudocódigo soportado por el analizador de complejidad.
+Este documento explica en detalle la gramática definida en `syntax/grammar.lark`, que describe el pseudocódigo soportado por el analizador de complejidad.
 
 ## Índice
 
@@ -256,19 +256,21 @@ Las expresiones matemáticas siguen la precedencia estándar:
 
 ```
 expr: term
-    | expr "+" term
-    | expr "-" term
+    | expr ADD_OP term
 
 term: factor
-    | term "*" factor
-    | term "/" factor
-    | term "mod" factor
-    | term "div" factor
+    | term MUL_OP factor
 
 factor: NUMBER
-      | NAME
       | variable
       | "(" expr ")"
+```
+
+Los operadores están definidos como tokens:
+
+```
+ADD_OP: "+" | "-"
+MUL_OP: "*" | "/" | "mod" | "div"
 ```
 
 **Operadores:**
@@ -407,11 +409,12 @@ NUMBER: /\d+/
 #### COMMENT (Comentarios)
 
 ```
-COMMENT: "►" /[^\n]*/   -> skip
+COMMENT: "►" /[^\n]*/
 ```
 
 - Los comentarios comienzan con `►`
 - Todo hasta el final de la línea se ignora
+- Los comentarios se ignoran mediante `%ignore COMMENT`
 - Ejemplo: `► Este es un comentario`
 
 ### Reglas de Espaciado
@@ -419,9 +422,11 @@ COMMENT: "►" /[^\n]*/   -> skip
 ```
 %import common.WS
 %ignore WS
+%ignore COMMENT
 ```
 
 - Los espacios en blanco se ignoran automáticamente
+- Los comentarios también se ignoran
 - Importado de la biblioteca común de Lark
 
 ---
@@ -489,5 +494,5 @@ CALL sumar(x, y)
 ## Referencias
 
 - [Documentación de Lark](https://lark-parser.readthedocs.io/)
-- Archivo fuente: `parser/grammar.lark`
+- Archivo fuente: `syntax/grammar.lark`
 
