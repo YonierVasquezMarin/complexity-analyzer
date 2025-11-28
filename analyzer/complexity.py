@@ -1,3 +1,4 @@
+# complexity.py
 # ----------------------------------------------------------
 # Motor principal para calcular la complejidad computacional
 # del pseudocódigo interpretado por parser/parser.py
@@ -70,23 +71,27 @@ class ComplexityAnalyzer:
     # ------------------------------------------------------
 
     def _analyze_node(self, node):
-        """Evalúa nodos del AST generados por Lark."""
-
-        nodetype = node.data if hasattr(node, "data") else None
+        """Evalúa nodos del AST generados por Lark (ahora como diccionarios)."""
+        
+        # Ahora trabajamos con diccionarios, no con nodos de Lark
+        if not isinstance(node, dict):
+            return "1"
+        
+        nodetype = node.get("type")
 
         if nodetype == "program":
-            return self._sequence(node.children)
+            return self._sequence(node.get("body", []))
 
-        if nodetype == "for_loop":
+        if nodetype == "for":  # ← CAMBIO: "for" en lugar de "for_loop"
             return self._for_loop(node)
 
-        if nodetype == "while_loop":
+        if nodetype == "while":  # ← CAMBIO: "while" en lugar de "while_loop"
             return self._while_loop(node)
 
-        if nodetype == "repeat_loop":
+        if nodetype == "repeat":  # ← CAMBIO: "repeat" en lugar de "repeat_loop"
             return self._repeat_loop(node)
 
-        if nodetype == "if_statement":
+        if nodetype == "if":  # ← CAMBIO: "if" en lugar de "if_statement"
             return self._if_statement(node)
 
         if nodetype == "subroutine_decl":
@@ -112,8 +117,8 @@ class ComplexityAnalyzer:
     # ------------------------------------------------------
 
     def _for_loop(self, node):
-        # for NAME ← expr to expr do block
-        body = node.children[-1]
+        # node es ahora un diccionario: {"type": "for", "var": ..., "start": ..., "end": ..., "body": ...}
+        body = node.get("body")
         body_c = self._analyze_node(body)
         iter_c = "n"
 
@@ -121,7 +126,7 @@ class ComplexityAnalyzer:
         return combine_multiplicative(iter_c, body_c)
 
     def _while_loop(self, node):
-        body = node.children[-1]
+        body = node.get("body")
 
         # Por defecto asumimos O(n)
         iter_c = "n"
@@ -131,7 +136,7 @@ class ComplexityAnalyzer:
         return combine_multiplicative(iter_c, body_c)
 
     def _repeat_loop(self, node):
-        body = node.children[0]
+        body = node.get("body")
         body_c = self._analyze_node(body)
 
         self.details["loops"].append("Ciclo REPEAT → O(n)")
@@ -142,8 +147,13 @@ class ComplexityAnalyzer:
     # ------------------------------------------------------
 
     def _if_statement(self, node):
-        # if (...) then block else block?
-        blocks = node.children[1:]
+        # node: {"type": "if", "condition": ..., "then": ..., "else": ...}
+        blocks = []
+        if node.get("then"):
+            blocks.append(node["then"])
+        if node.get("else"):
+            blocks.append(node["else"])
+        
         comps = [self._analyze_node(b) for b in blocks]
         return BigO(comps)
 
@@ -152,7 +162,7 @@ class ComplexityAnalyzer:
     # ------------------------------------------------------
 
     def _subroutine(self, node):
-        block = node.children[-1]
+        block = node.get("body")
         # Detectar recursión (simple heurística)
         recursive = self._detect_recursion(node)
 
@@ -174,21 +184,26 @@ class ComplexityAnalyzer:
 
     def _detect_recursion(self, node):
         """Revisa si dentro del bloque se llama a sí misma la función."""
-        name = node.children[0].value  # nombre de la función
-
-        block = node.children[-1]
+        name = node.get("name")
+        block = node.get("body")
 
         def search(n):
-            if hasattr(n, "data") and n.data == "call":
-                if n.children[0].value == name:
+            if isinstance(n, dict):
+                if n.get("type") == "call" and n.get("name") == name:
                     return True
-            for ch in getattr(n, "children", []):
-                if search(ch): return True
+                # Buscar recursivamente en todos los valores
+                for value in n.values():
+                    if isinstance(value, (dict, list)):
+                        if search(value):
+                            return True
+            elif isinstance(n, list):
+                for item in n:
+                    if search(item):
+                        return True
             return False
 
         if search(block):
             # Detectar si es T(n-1) o T(n/2)
-            # (heurística muy simple)
             text = str(block)
 
             if "/2" in text or "div 2" in text:

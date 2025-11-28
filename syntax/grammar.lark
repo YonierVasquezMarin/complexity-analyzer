@@ -120,18 +120,20 @@ REL_OP: "<" | ">" | "<=" | ">=" | "=" | "≠"
 // EXPRESIONES MATEMÁTICAS
 // ──────────────────────────
 expr: term
-    | expr "+" term
-    | expr "-" term
+    | expr ADD_OP term
 
 term: factor
-    | term "*" factor
-    | term "/" factor
-    | term "mod" factor
-    | term "div" factor
+    | term MUL_OP factor
 
 factor: NUMBER
       | variable
       | "(" expr ")"
+
+// ──────────────────────────
+// OPERADORES COMO TOKENS
+// ──────────────────────────
+ADD_OP: "+" | "-"
+MUL_OP: "*" | "/" | "mod" | "div"
 
 // ──────────────────────────
 // TOKENS BÁSICOS
