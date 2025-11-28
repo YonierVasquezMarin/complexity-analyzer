@@ -130,7 +130,6 @@ term: factor
     | term "div" factor
 
 factor: NUMBER
-      | NAME
       | variable
       | "(" expr ")"
 
@@ -141,7 +140,8 @@ NAME: /[A-Za-z][A-Za-z0-9_]*/
 
 NUMBER: /\d+/
 
-COMMENT: "►" /[^\n]*/   -> skip
+COMMENT: "►" /[^\n]*/
 
 %import common.WS
 %ignore WS
+%ignore COMMENT
