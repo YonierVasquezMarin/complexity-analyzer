@@ -1,7 +1,13 @@
 from lark import Lark, Transformer, v_args
+import os
+from pathlib import Path
 
 # Cargar gramática
-with open("grammar.lark", "r", encoding="utf-8") as f:
+# Obtener el directorio donde está este archivo
+_current_dir = Path(__file__).parent
+_grammar_path = _current_dir / "grammar.lark"
+
+with open(_grammar_path, "r", encoding="utf-8") as f:
     GRAMMAR = f.read()
 
 parser = Lark(GRAMMAR, start="start", parser="lalr")
