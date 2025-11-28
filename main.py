@@ -1,5 +1,6 @@
 from fastapi import FastAPI
 from fastapi.responses import JSONResponse
+from services.analysis_service import analyze_pseudocode
 
 app = FastAPI(
     title="Complexity Analyzer API",
@@ -38,3 +39,14 @@ async def get_info():
         "framework": "FastAPI"
     }
 
+
+@app.post("/analyze-by-system")
+def analyze_endpoint(payload: dict):
+    """
+    Endpoint para analizar la complejidad de pseudocódigo.
+    Recibe un payload con el código en el campo 'code' y devuelve
+    el análisis de complejidad.
+    """
+    pseudocode = payload.get("code", "")
+    result = analyze_pseudocode(pseudocode)
+    return result
