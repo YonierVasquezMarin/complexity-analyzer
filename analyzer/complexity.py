@@ -82,6 +82,9 @@ class ComplexityAnalyzer:
         if nodetype == "program":
             return self._sequence(node.get("body", []))
 
+        if nodetype == "block":
+            return self._sequence(node.get("body", []))
+
         if nodetype == "for":  # ← CAMBIO: "for" en lugar de "for_loop"
             return self._for_loop(node)
 
@@ -123,6 +126,8 @@ class ComplexityAnalyzer:
         iter_c = "n"
 
         self.details["loops"].append("Ciclo FOR → O(n)")
+        
+        # Combinar la complejidad del ciclo con la del cuerpo
         return combine_multiplicative(iter_c, body_c)
 
     def _while_loop(self, node):
