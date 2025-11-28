@@ -1,9 +1,8 @@
-# services/analysis_service.py
 # -------------------------------------------------------------
 # Servicio central que integra parser.py y complexity.py
 # -------------------------------------------------------------
 
-from parser.parser import parse
+from syntax.parser import PseudocodeParser
 from analyzer.complexity import ComplexityAnalyzer
 
 
@@ -14,8 +13,9 @@ def analyze_pseudocode(text: str):
     """
 
     # 1. Parsear texto → AST
+    parser = PseudocodeParser()
     try:
-        ast = parse(text)
+        ast = parser.parse(text)
     except Exception as e:
         return {
             "error": "Error de sintaxis en el pseudocódigo.",
