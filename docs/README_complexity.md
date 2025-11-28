@@ -37,16 +37,20 @@ El archivo se estructura en dos componentes principales:
 
 ```
 complexity.py
-├── Funciones de Utilidad (líneas 12-34)
+├── Funciones de Utilidad (líneas 13-35)
 │   ├── BigO() - Selección de complejidad dominante
 │   ├── combine_multiplicative() - Multiplicación de complejidades
 │   └── combine_additive() - Suma de complejidades
-└── Clase ComplexityAnalyzer (líneas 41-199)
+└── Clase ComplexityAnalyzer (líneas 42-213)
     ├── analyze() - Punto de entrada principal
     ├── _analyze_node() - Evaluación recursiva del AST
     ├── Métodos de análisis por tipo de nodo
     └── _detect_recursion() - Heurísticas de recursión
 ```
+
+### Formato de Datos
+
+**Importante:** El analizador ahora trabaja con **diccionarios** en lugar de objetos de Lark directamente. Los nodos del AST son diccionarios con una clave `"type"` que identifica el tipo de nodo, y otras claves específicas según el tipo (como `"body"`, `"then"`, `"else"`, `"name"`, etc.).
 
 ### Flujo de Procesamiento
 
@@ -60,7 +64,7 @@ AST → ComplexityAnalyzer.analyze() → _analyze_node() → Cálculo de complej
 
 ### `BigO(expr_list)`
 
-**Ubicación:** Líneas 12-19
+**Ubicación:** Líneas 13-20
 
 Combina múltiples complejidades y retorna la dominante según el orden de crecimiento.
 
@@ -90,7 +94,7 @@ BigO([])  # Retorna "1"
 
 ### `combine_multiplicative(a, b)`
 
-**Ubicación:** Líneas 22-29
+**Ubicación:** Líneas 23-30
 
 Aplica reglas de multiplicación de complejidades (usado para ciclos anidados o ciclos con cuerpo complejo).
 
@@ -118,7 +122,7 @@ combine_multiplicative("1", "n")      # Retorna "n"
 
 ### `combine_additive(a, b)`
 
-**Ubicación:** Líneas 32-34
+**Ubicación:** Líneas 33-35
 
 Combina complejidades de forma aditiva (usado para secuencias de sentencias).
 
@@ -145,7 +149,7 @@ combine_additive("n^2", "n")    # Retorna "n^2" (dominante)
 
 ### Inicialización
 
-**Ubicación:** Líneas 42-47
+**Ubicación:** Líneas 43-48
 
 ```python
 def __init__(self):
@@ -166,7 +170,7 @@ def __init__(self):
 
 ### Método Principal: `analyze(ast)`
 
-**Ubicación:** Líneas 53-66
+**Ubicación:** Líneas 54-67
 
 Punto de entrada principal del analizador. Recibe el AST completo y retorna un diccionario con las notaciones de complejidad.
 
@@ -211,35 +215,41 @@ print(result["O"])  # "O(n)"
 
 ### `_analyze_node(node)`
 
-**Ubicación:** Líneas 72-96
+**Ubicación:** Líneas 73-101
 
 Método central que evalúa recursivamente cada nodo del AST según su tipo.
 
 **Parámetros:**
-- `node`: Nodo del AST a analizar
+- `node`: Nodo del AST a analizar (diccionario o valor primitivo)
 
 **Retorna:**
 - `str`: Expresión de complejidad calculada
 
+**Comportamiento:**
+- Si el nodo no es un diccionario, retorna `"1"` (complejidad constante)
+- Trabaja con diccionarios que tienen una clave `"type"` que identifica el tipo de nodo
+- Los nodos ahora son diccionarios en lugar de objetos de Lark directamente
+
 **Tipos de nodos soportados:**
-- `program`: Secuencia de sentencias
-- `for_loop`: Ciclo FOR
-- `while_loop`: Ciclo WHILE
-- `repeat_loop`: Ciclo REPEAT
-- `if_statement`: Condicional IF-ELSE
+- `program`: Secuencia de sentencias (accede a `node.get("body", [])`)
+- `for`: Ciclo FOR
+- `while`: Ciclo WHILE
+- `repeat`: Ciclo REPEAT
+- `if`: Condicional IF-ELSE
 - `subroutine_decl`: Declaración de subrutina
 - Otros: Retorna `"1"` (complejidad constante)
 
 **Flujo:**
-1. Identifica el tipo de nodo mediante `node.data`
-2. Llama al método específico correspondiente
-3. Retorna la complejidad calculada
+1. Verifica si el nodo es un diccionario
+2. Extrae el tipo mediante `node.get("type")`
+3. Llama al método específico correspondiente según el tipo
+4. Retorna la complejidad calculada
 
 ---
 
 ### `_sequence(elements)`
 
-**Ubicación:** Líneas 102-108
+**Ubicación:** Líneas 107-113
 
 Analiza una secuencia de sentencias (suma de complejidades).
 
@@ -263,20 +273,27 @@ Analiza una secuencia de sentencias (suma de complejidades).
 
 ### `_for_loop(node)`
 
-**Ubicación:** Líneas 114-121
+**Ubicación:** Líneas 119-126
 
 Analiza un ciclo FOR.
 
 **Estructura esperada del nodo:**
-```
-for NAME ← expr to expr do block
+```python
+{
+    "type": "for",
+    "var": "...",
+    "start": ...,
+    "end": ...,
+    "body": {...}  # Cuerpo del ciclo
+}
 ```
 
 **Comportamiento:**
-- Extrae el cuerpo del ciclo (último hijo)
+- Extrae el cuerpo del ciclo mediante `node.get("body")`
 - Asume complejidad de iteración `O(n)` por defecto
-- Multiplica la complejidad de iteración por la del cuerpo
-- Registra el ciclo en `self.details["loops"]`
+- Analiza recursivamente el cuerpo del ciclo
+- Multiplica la complejidad de iteración por la del cuerpo usando `combine_multiplicative()`
+- Registra el ciclo en `self.details["loops"]` con el mensaje "Ciclo FOR → O(n)"
 
 **Retorna:**
 - `str`: Complejidad del ciclo (típicamente `"n"` o `"n * cuerpo"`)
@@ -292,15 +309,26 @@ for NAME ← expr to expr do block
 
 ### `_while_loop(node)`
 
-**Ubicación:** Líneas 123-131
+**Ubicación:** Líneas 128-136
 
 Analiza un ciclo WHILE.
 
+**Estructura esperada del nodo:**
+```python
+{
+    "type": "while",
+    "condition": ...,
+    "body": {...}  # Cuerpo del ciclo
+}
+```
+
 **Comportamiento:**
+- Extrae el cuerpo del ciclo mediante `node.get("body")`
 - Similar a `_for_loop()`
 - Por defecto asume `O(n)` iteraciones
+- Analiza recursivamente el cuerpo del ciclo
 - Multiplica la complejidad de iteración por la del cuerpo
-- Registra el ciclo en `self.details["loops"]`
+- Registra el ciclo en `self.details["loops"]` con el mensaje "Ciclo WHILE → O(n)"
 
 **Nota:** El analizador no evalúa la condición del WHILE para determinar el número exacto de iteraciones, asume `O(n)` por defecto.
 
@@ -308,38 +336,50 @@ Analiza un ciclo WHILE.
 
 ### `_repeat_loop(node)`
 
-**Ubicación:** Líneas 133-138
+**Ubicación:** Líneas 138-143
 
 Analiza un ciclo REPEAT-UNTIL.
 
 **Estructura esperada del nodo:**
-```
-repeat block until condition
+```python
+{
+    "type": "repeat",
+    "body": {...},  # Cuerpo del ciclo
+    "condition": ...
+}
 ```
 
 **Comportamiento:**
+- Extrae el cuerpo del ciclo mediante `node.get("body")`
 - Similar a los otros ciclos
 - Asume `O(n)` iteraciones
-- Multiplica por la complejidad del cuerpo
-- Registra el ciclo en `self.details["loops"]`
+- Analiza recursivamente el cuerpo del ciclo
+- Multiplica por la complejidad del cuerpo usando `combine_multiplicative("n", body_c)`
+- Registra el ciclo en `self.details["loops"]` con el mensaje "Ciclo REPEAT → O(n)"
 
 ---
 
 ### `_if_statement(node)`
 
-**Ubicación:** Líneas 144-148
+**Ubicación:** Líneas 149-158
 
 Analiza una sentencia condicional IF-ELSE.
 
 **Estructura esperada del nodo:**
-```
-if condition then block [else block]
+```python
+{
+    "type": "if",
+    "condition": ...,
+    "then": {...},  # Bloque then (opcional)
+    "else": {...}   # Bloque else (opcional)
+}
 ```
 
 **Comportamiento:**
-- Analiza todos los bloques (then y else si existe)
-- Retorna la complejidad dominante entre los bloques
-- Usa `BigO()` para seleccionar la mayor
+- Extrae los bloques `then` y `else` mediante `node.get("then")` y `node.get("else")`
+- Analiza todos los bloques presentes (then y else si existe)
+- Retorna la complejidad dominante entre los bloques usando `BigO()`
+- Usa `BigO()` para seleccionar la mayor complejidad
 
 **Ejemplo:**
 ```python
@@ -354,16 +394,25 @@ if condition then block [else block]
 
 ### `_subroutine(node)`
 
-**Ubicación:** Líneas 154-169
+**Ubicación:** Líneas 164-179
 
 Analiza una declaración de subrutina (función/procedimiento).
 
+**Estructura esperada del nodo:**
+```python
+{
+    "type": "subroutine_decl",
+    "name": "...",
+    "body": {...}  # Cuerpo de la subrutina
+}
+```
+
 **Comportamiento:**
-1. Extrae el bloque de la subrutina
+1. Extrae el bloque de la subrutina mediante `node.get("body")`
 2. Detecta si hay recursión usando `_detect_recursion()`
 3. Si hay recursión:
-   - **Recursión simple** (`T(n-1)`): Retorna `"n"`
-   - **Recursión divide y vencerás** (`T(n/2)`): Retorna `"n log n"`
+   - **Recursión simple** (`T(n-1)`): Retorna `"n"` y actualiza `self.details["recursion"]` con "T(n) = T(n-1) + cost"
+   - **Recursión divide y vencerás** (`T(n/2)`): Retorna `"n log n"` y actualiza `self.details["recursion"]` con "T(n) = 2T(n/2) + cost"
 4. Si no hay recursión: Retorna la complejidad del cuerpo
 
 **Retorna:**
@@ -383,12 +432,12 @@ Analiza una declaración de subrutina (función/procedimiento).
 
 ### `_detect_recursion(node)`
 
-**Ubicación:** Líneas 175-199
+**Ubicación:** Líneas 185-213
 
 Heurística básica para detectar si una subrutina se llama a sí misma.
 
 **Parámetros:**
-- `node`: Nodo de declaración de subrutina
+- `node`: Nodo de declaración de subrutina (diccionario)
 
 **Retorna:**
 - `None`: No hay recursión
@@ -396,10 +445,14 @@ Heurística básica para detectar si una subrutina se llama a sí misma.
 - `"divide"`: Recursión tipo `T(n/2)` (divide y vencerás)
 
 **Algoritmo:**
-1. Extrae el nombre de la función (primer hijo)
-2. Busca recursivamente en el bloque si hay una llamada (`call`) con el mismo nombre
-3. Si encuentra recursión:
-   - Busca indicadores de división (`"/2"` o `"div 2"`) en el texto del bloque
+1. Extrae el nombre de la función mediante `node.get("name")`
+2. Extrae el bloque de la subrutina mediante `node.get("body")`
+3. Busca recursivamente en el bloque si hay un nodo con:
+   - `type == "call"` y `name == nombre_de_la_función`
+4. La búsqueda se realiza recursivamente en todos los valores del diccionario y elementos de listas
+5. Si encuentra recursión:
+   - Convierte el bloque a texto usando `str(block)`
+   - Busca indicadores de división (`"/2"` o `"div 2"`) en el texto
    - Si encuentra: retorna `"divide"`
    - Si no: retorna `"simple"`
 
@@ -407,6 +460,7 @@ Heurística básica para detectar si una subrutina se llama a sí misma.
 - Es una heurística simple basada en texto
 - No analiza la estructura real de la recursión
 - Puede tener falsos positivos o negativos en casos complejos
+- La búsqueda de división se hace sobre la representación en texto del bloque, no sobre la estructura del AST
 
 **Ejemplo de detección:**
 ```python
@@ -521,6 +575,16 @@ print(result["details"]["recursion"])  # "T(n) = T(n-1) + cost"
 ---
 
 ## Notas de Implementación
+
+### Cambios Importantes
+
+1. **Formato de AST:** El analizador ahora trabaja con diccionarios en lugar de objetos de Lark. Los nodos tienen una estructura como `{"type": "for", "body": {...}, ...}` en lugar de objetos con atributos.
+2. **Tipos de nodos:** Los tipos de nodos han cambiado:
+   - `for_loop` → `for`
+   - `while_loop` → `while`
+   - `repeat_loop` → `repeat`
+   - `if_statement` → `if`
+3. **Acceso a datos:** Se usa `node.get("clave")` en lugar de acceder directamente a atributos o hijos del nodo.
 
 ### Limitaciones Actuales
 
