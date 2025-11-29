@@ -13,6 +13,8 @@ program: statement+
 // ──────────────────────────
 
 statement: array_decl
+         | graph_decl
+         | graph_obj
          | assignment
          | for_loop
          | while_loop
@@ -43,7 +45,7 @@ array_decl: "array" NAME "[" expr "]"
 
 // Variables incluyendo campos de objetos y acceso a arreglos/matrices
 variable: NAME
-        | NAME "." NAME
+        | NAME "." NAME array_access*
         | NAME array_access+
 
 array_access: "[" array_index "]"
@@ -103,9 +105,22 @@ class_decl: NAME "{" class_attr* "}"
 class_attr: NAME
 
 // ──────────────────────────
+// DECLARACIÓN DE GRAFOS
+// Graph NombreGrafo {nodos aristas}
+// ──────────────────────────
+graph_decl: "Graph" NAME "{" graph_attr* "}"
+
+graph_attr: NAME
+
+// ──────────────────────────
 // OBJETOS: Clase nombre
 // ──────────────────────────
 object_decl: NAME NAME
+
+// ──────────────────────────
+// INSTANCIAS DE GRAFOS: Graph nombre
+// ──────────────────────────
+graph_obj: "Graph" NAME
 
 // ──────────────────────────
 // SUBRUTINAS

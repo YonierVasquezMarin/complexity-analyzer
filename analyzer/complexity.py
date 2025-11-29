@@ -142,6 +142,14 @@ class ComplexityAnalyzer:
         if nodetype == "binop":
             # Operaciones binarias - analizar si involucran strings
             return self._analyze_binop(node)
+        
+        if nodetype == "graph_class":
+            # Definir una clase de grafo es O(1)
+            return ComplexityResult()
+        
+        if nodetype == "graph_instance":
+            # Crear instancia de grafo es O(1) (solo declaración)
+            return ComplexityResult()
 
         # Otros nodos → complejidad constante
         return ComplexityResult()

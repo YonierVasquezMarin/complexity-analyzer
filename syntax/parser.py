@@ -126,6 +126,15 @@ class PseudocodeTransformer(Transformer):
 
     def class_attr(self, items):
         return self._extract_value(items[0])
+    
+    def graph_decl(self, items):
+        return {"type": "graph_class", "name": self._extract_value(items[0]), "attrs": items[1:]}
+    
+    def graph_attr(self, items):
+        return self._extract_value(items[0])
+    
+    def graph_obj(self, items):
+        return {"type": "graph_instance", "name": self._extract_value(items[0])}
 
     def object_decl(self, items):
         return {
@@ -157,10 +166,29 @@ class PseudocodeTransformer(Transformer):
             return {"type": "var", "name": "unknown"}
         
         if len(items) == 1:
+            # Solo nombre: x
             return {"type": "var", "name": self._extract_value(items[0])}
-        else:
-            # obj.field o arr[index] o matriz[i][j]
-            return {"type": "var", "name": self._extract_value(items[0]), "access": items[1:]}
+        elif len(items) >= 2:
+            first = items[0]
+            second = items[1]
+            
+            # Verificar si el segundo elemento es un string (campo de objeto)
+            # o un dict (acceso a arreglo)
+            if isinstance(second, str) or (isinstance(second, dict) and second.get("type") == "name"):
+                # Es acceso a campo: obj.campo o obj.campo[i]
+                field_name = self._extract_value(second)
+                remaining = items[2:] if len(items) > 2 else []
+                return {
+                    "type": "var",
+                    "name": self._extract_value(first),
+                    "field": field_name,
+                    "access": remaining if remaining else None
+                }
+            else:
+                # Es acceso a arreglo/matriz: arr[i] o arr[i][j]
+                return {"type": "var", "name": self._extract_value(first), "access": items[1:]}
+        
+        return {"type": "var", "name": self._extract_value(items[0])}
 
     def array_access(self, items):
         # Cada acceso tiene un índice (puede ser expr simple o rango)
