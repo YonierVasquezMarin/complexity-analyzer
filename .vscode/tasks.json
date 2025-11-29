@@ -14,6 +14,20 @@
                 "panel": "new"
             },
             "problemMatcher": []
+        },
+        {
+            "label": "Run Pytest Tests",
+            "type": "shell",
+            "command": "pytest tests/ -v",
+            "group": {
+                "kind": "test",
+                "isDefault": true
+            },
+            "presentation": {
+                "reveal": "always",
+                "panel": "new"
+            },
+            "problemMatcher": []
         }
     ]
 }
