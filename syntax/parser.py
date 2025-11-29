@@ -107,7 +107,15 @@ class PseudocodeTransformer(Transformer):
     
     def length_func(self, items):
         # length(A) - devuelve el tamaño de un arreglo
-        return {"type": "length", "array": items[0] if items else None}
+        return {"type": "length", "arg": items[0] if items else None}
+    
+    def ceiling_func(self, items):
+        # ceiling(x) o ┌x┐ - redondea hacia arriba
+        return {"type": "ceiling", "arg": items[0] if items else None}
+    
+    def floor_func(self, items):
+        # floor(x) o └x┘ - redondea hacia abajo
+        return {"type": "floor", "arg": items[0] if items else None}
     
     def return_stmt(self, items):
         return {"type": "return", "value": items[0] if items else None}
@@ -290,6 +298,12 @@ class PseudocodeTransformer(Transformer):
     
     def MOD(self, token):
         return "mod"
+    
+    def CEILING(self, token):
+        return "ceiling"
+    
+    def FLOOR(self, token):
+        return "floor"
 
     # ---- Utilidades ----
     

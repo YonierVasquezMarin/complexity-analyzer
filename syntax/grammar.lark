@@ -169,12 +169,21 @@ factor: NUMBER
       | variable
       | call_expr
       | length_func
+      | ceiling_func
+      | floor_func
       | NULL
       | BOOLEAN
       | "(" expr ")"
 
 // Función especial length
-length_func: "length" "(" variable ")"
+length_func: "length" "(" expr ")"
+
+// Funciones matemáticas
+ceiling_func: CEILING "(" expr ")"
+           | "┌" expr "┐"
+
+floor_func: FLOOR "(" expr ")"
+         | "└" expr "┘"
 
 // Valor NULL
 NULL: "NULL"
@@ -195,6 +204,8 @@ MUL_OP: "*" | "/"
 // Palabras reservadas (deben ir ANTES de NAME)
 DIV: "div"
 MOD: "mod"
+CEILING: "ceiling"
+FLOOR: "floor"
 
 NAME: /[A-Za-z][A-Za-z0-9_]*/
 
