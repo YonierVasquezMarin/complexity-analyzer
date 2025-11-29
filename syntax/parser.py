@@ -138,14 +138,12 @@ class PseudocodeTransformer(Transformer):
         if len(items) == 1:
             return {"type": "var", "name": self._extract_value(items[0])}
         else:
-            # obj.field o arr[index]
-            return {"type": "var", "name": self._extract_value(items[0]), "access": items[1]}
+            # obj.field o arr[index] o matriz[i][j]
+            return {"type": "var", "name": self._extract_value(items[0]), "access": items[1:]}
 
-    def array_index(self, items):
-        return {"type": "array_index", "range": items[0] if items else None}
-
-    def index_range(self, items):
-        return items
+    def array_access(self, items):
+        # Cada acceso tiene un índice (expresión)
+        return {"type": "array_access", "index": items[0] if items else None}
 
     # ---- Condiciones ----
     

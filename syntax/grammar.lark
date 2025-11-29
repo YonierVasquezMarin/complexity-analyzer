@@ -34,13 +34,12 @@ assignment: variable ASSIGN expr
 // El símbolo especial "🡨" se define como token ASSIGN
 ASSIGN: "🡨"
 
-// Variables incluyendo campos de objetos y acceso a arreglos
+// Variables incluyendo campos de objetos y acceso a arreglos/matrices
 variable: NAME
         | NAME "." NAME
-        | NAME array_index
+        | NAME array_access+
 
-array_index: "[" index_range "]"
-index_range: expr (".." expr)?
+array_access: "[" expr "]"
 
 // ──────────────────────────
 // CICLO FOR
