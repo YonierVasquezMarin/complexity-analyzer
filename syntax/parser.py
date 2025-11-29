@@ -28,6 +28,16 @@ class PseudocodeTransformer(Transformer):
         # statement solo tiene un hijo, devolvemos ese hijo directamente
         return items[0] if items else None
 
+    def array_decl(self, items):
+        # Declaración de arreglo: array nombre[tamaño]
+        # items[0] = nombre del arreglo
+        # items[1] = tamaño
+        return {
+            "type": "array_decl",
+            "name": self._extract_value(items[0]),
+            "size": items[1] if len(items) > 1 else None
+        }
+
     def assignment(self, items):
         # variable ASSIGN expr
         # items[0] = variable

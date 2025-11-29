@@ -12,7 +12,8 @@ program: statement+
 // SENTENCIAS PRINCIPALES
 // ──────────────────────────
 
-statement: assignment
+statement: array_decl
+         | assignment
          | for_loop
          | while_loop
          | repeat_loop
@@ -33,6 +34,12 @@ assignment: variable ASSIGN expr
 
 // El símbolo especial "🡨" se define como token ASSIGN
 ASSIGN: "🡨"
+
+// ──────────────────────────
+// DECLARACIÓN DE ARREGLOS LOCALES
+// Sintaxis: array nombreArray[tamaño]
+// ──────────────────────────
+array_decl: "array" NAME "[" expr "]"
 
 // Variables incluyendo campos de objetos y acceso a arreglos/matrices
 variable: NAME

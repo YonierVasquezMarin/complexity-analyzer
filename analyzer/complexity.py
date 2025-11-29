@@ -134,6 +134,10 @@ class ComplexityAnalyzer:
         if nodetype == "var":
             # Analizar si la variable tiene acceso a rangos
             return self._analyze_variable(node)
+        
+        if nodetype == "array_decl":
+            # Declarar un arreglo de tamaño n es O(n)
+            return ComplexityResult(best="n", worst="n")
 
         # Otros nodos → complejidad constante
         return ComplexityResult()
