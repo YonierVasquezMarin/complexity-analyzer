@@ -239,6 +239,11 @@ class PseudocodeTransformer(Transformer):
     
     def NUMBER(self, token):
         return {"type": "number", "value": str(token)}
+    
+    def STRING(self, token):
+        # Remover las comillas del string
+        value = str(token)[1:-1]  # Quita el primer y último carácter (las comillas)
+        return {"type": "string", "value": value}
 
     def NAME(self, token):
         return {"type": "name", "value": str(token)}

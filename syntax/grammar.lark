@@ -150,6 +150,7 @@ term: factor
     | term DIV factor
 
 factor: NUMBER
+      | STRING
       | variable
       | call_expr
       | length_func
@@ -183,6 +184,8 @@ MOD: "mod"
 NAME: /[A-Za-z][A-Za-z0-9_]*/
 
 NUMBER: /\d+/
+
+STRING: /"[^"]*"/
 
 COMMENT: "►" /[^\n]*/
 

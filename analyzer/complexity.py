@@ -138,6 +138,10 @@ class ComplexityAnalyzer:
         if nodetype == "array_decl":
             # Declarar un arreglo de tamaño n es O(n)
             return ComplexityResult(best="n", worst="n")
+        
+        if nodetype == "binop":
+            # Operaciones binarias - analizar si involucran strings
+            return self._analyze_binop(node)
 
         # Otros nodos → complejidad constante
         return ComplexityResult()
@@ -244,6 +248,33 @@ class ComplexityAnalyzer:
         has_early_exit = then_result.has_early_exit or else_result.has_early_exit
         
         return ComplexityResult(best=best_case, worst=worst_case, has_early_exit=has_early_exit)
+
+    # ------------------------------------------------------
+    # Análisis de operaciones binarias
+    # ------------------------------------------------------
+    
+    def _analyze_binop(self, node):
+        """
+        Analiza operaciones binarias. La concatenación de strings
+        puede tener complejidad O(n) dependiendo del tamaño.
+        """
+        op = node.get("op")
+        left = node.get("left")
+        right = node.get("right")
+        
+        # Si es concatenación de strings (+), es O(n)
+        # donde n es la longitud de los strings
+        if op == "+":
+            # Verificar si alguno de los operandos es string
+            left_is_string = isinstance(left, dict) and left.get("type") == "string"
+            right_is_string = isinstance(right, dict) and right.get("type") == "string"
+            
+            if left_is_string or right_is_string:
+                # Concatenación de strings es O(n)
+                return ComplexityResult(best="n", worst="n")
+        
+        # Operaciones matemáticas normales son O(1)
+        return ComplexityResult()
 
     # ------------------------------------------------------
     # Análisis de variables con rangos
