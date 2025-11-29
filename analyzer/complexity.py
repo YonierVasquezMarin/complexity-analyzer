@@ -257,6 +257,10 @@ class ComplexityAnalyzer:
         if recursive == "divide":
             self.details["recursion"] = "T(n) = 2T(n/2) + cost"
             return ComplexityResult(best="n log n", worst="n log n")
+        
+        if recursive == "exponential":
+            # La recursión ya fue registrada en _detect_recursion con el número exacto de llamadas
+            return ComplexityResult(best="2^n", worst="2^n")
 
         return body_result
 
@@ -272,44 +276,53 @@ class ComplexityAnalyzer:
         if not name or not block:
             return None
 
-        def search(n):
+        # Contador de llamadas recursivas
+        recursive_calls = []
+
+        def search(n, path=""):
             if isinstance(n, dict):
                 # Verificar si es una llamada con el mismo nombre
                 if n.get("type") == "call":
                     call_name = n.get("name")
                     if call_name == name:
+                        recursive_calls.append(path)
                         return True
                 
                 # Buscar recursivamente en todos los valores
                 for key, value in n.items():
                     if key != "name":  # Evitar falsos positivos con el nombre del nodo
                         if isinstance(value, (dict, list)):
-                            if search(value):
-                                return True
+                            search(value, path + f"/{key}")
             elif isinstance(n, list):
-                for item in n:
-                    if search(item):
-                        return True
+                for i, item in enumerate(n):
+                    search(item, path + f"[{i}]")
             return False
 
-        if search(block):
-            # Detectar si es T(n-1) o T(n/2)
-            # Convertimos el bloque a string para buscar patrones
-            text = str(block).lower().replace(" ", "")
-            
-            # Buscar patrones de división por 2
-            division_patterns = [
-                "div2", "/2", "div 2", "/ 2",
-                "'op':'div','right':{'type':'number','value':'2'}",
-                "'op':'/','right':{'type':'number','value':'2'}"
-            ]
-            
-            has_division = any(pattern.replace(" ", "") in text for pattern in division_patterns)
-            
-            if has_division:
-                return "divide"
+        search(block)
 
-            # Por defecto, asumir recursión simple
-            return "simple"
+        if len(recursive_calls) == 0:
+            return None
+        
+        # Detectar tipo de recursión
+        text = str(block).lower().replace(" ", "")
+        
+        # Buscar patrones de división por 2
+        division_patterns = [
+            "div2", "/2",
+            "'op':'div','right':{'type':'number','value':'2'}",
+            "'op':'/','right':{'type':'number','value':'2'}"
+        ]
+        
+        has_division = any(pattern.replace(" ", "") in text for pattern in division_patterns)
+        
+        # Recursión múltiple (2 o más llamadas) = Exponencial
+        if len(recursive_calls) >= 2:
+            self.details["recursion"] = f"T(n) = {len(recursive_calls)}T(n-1) + cost (exponencial)"
+            return "exponential"
+        
+        # Recursión con división = Divide y conquista
+        if has_division:
+            return "divide"
 
-        return None
+        # Recursión simple = Lineal
+        return "simple"
