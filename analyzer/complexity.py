@@ -1,7 +1,6 @@
-# complexity.py
 # ----------------------------------------------------------
-# Motor principal para calcular la complejidad computacional
-# del pseudocódigo interpretado por parser/parser.py
+# Motor avanzado para calcular complejidad computacional
+# Detecta mejor caso (Omega), peor caso (O) y caso promedio (Theta)
 # ----------------------------------------------------------
 
 from math import log2
@@ -27,12 +26,29 @@ def combine_multiplicative(a, b):
     if a == "n" and b == "log n": return "n log n"
     if a == "log n" and b == "n": return "n log n"
     if a == "n" and b == "n": return "n^2"
+    if a == "n^2" and b == "n": return "n^3"
+    if a == "n" and b == "n^2": return "n^3"
     return f"{a} * {b}"
 
 
 def combine_additive(a, b):
     """Reglas simples de suma de complejidad."""
     return BigO([a, b])
+
+
+# ----------------------------------------------------------
+# Clase que representa un resultado de complejidad
+# ----------------------------------------------------------
+
+class ComplexityResult:
+    def __init__(self, best="1", worst="1", avg=None, has_early_exit=False):
+        self.best = best  # Omega
+        self.worst = worst  # O
+        self.avg = avg if avg else worst  # Theta (por defecto = worst)
+        self.has_early_exit = has_early_exit
+    
+    def __repr__(self):
+        return f"ComplexityResult(best={self.best}, worst={self.worst}, avg={self.avg})"
 
 
 # ----------------------------------------------------------
@@ -44,7 +60,8 @@ class ComplexityAnalyzer:
         self.details = {
             "loops": [],
             "recursion": None,
-            "combination": ""
+            "combination": "",
+            "early_exit_detected": False
         }
 
     # ------------------------------------------------------
@@ -53,11 +70,16 @@ class ComplexityAnalyzer:
 
     def analyze(self, ast):
         """Punto de entrada: recibe el árbol completo."""
-        complexity = self._analyze_node(ast)
+        result = self._analyze_node(ast)
 
-        O = f"O({complexity})"
-        Omega = f"Ω({complexity})"
-        Theta = f"Θ({complexity})"
+        O = f"O({result.worst})"
+        Omega = f"Ω({result.best})"
+        
+        # Si best == worst, entonces existe Theta
+        if result.best == result.worst:
+            Theta = f"Θ({result.avg})"
+        else:
+            Theta = "N/A"  # No hay Theta cuando los casos difieren
 
         return {
             "O": O,
@@ -71,12 +93,11 @@ class ComplexityAnalyzer:
     # ------------------------------------------------------
 
     def _analyze_node(self, node):
-        """Evalúa nodos del AST generados por Lark (ahora como diccionarios)."""
-        
-        # Ahora trabajamos con diccionarios, no con nodos de Lark
+        """Evalúa nodos del AST y retorna ComplexityResult."""
+
         if not isinstance(node, dict):
-            return "1"
-        
+            return ComplexityResult()
+
         nodetype = node.get("type")
 
         if nodetype == "program":
@@ -85,82 +106,135 @@ class ComplexityAnalyzer:
         if nodetype == "block":
             return self._sequence(node.get("body", []))
 
-        if nodetype == "for":  # ← CAMBIO: "for" en lugar de "for_loop"
+        if nodetype == "for":
             return self._for_loop(node)
 
-        if nodetype == "while":  # ← CAMBIO: "while" en lugar de "while_loop"
+        if nodetype == "while":
             return self._while_loop(node)
 
-        if nodetype == "repeat":  # ← CAMBIO: "repeat" en lugar de "repeat_loop"
+        if nodetype == "repeat":
             return self._repeat_loop(node)
 
-        if nodetype == "if":  # ← CAMBIO: "if" en lugar de "if_statement"
+        if nodetype == "if":
             return self._if_statement(node)
+
+        if nodetype == "return":
+            return ComplexityResult(best="1", worst="1", has_early_exit=True)
+
+        if nodetype == "break":
+            return ComplexityResult(best="1", worst="1", has_early_exit=True)
+
+        if nodetype == "continue":
+            return ComplexityResult()
 
         if nodetype == "subroutine_decl":
             return self._subroutine(node)
 
         # Otros nodos → complejidad constante
-        return "1"
+        return ComplexityResult()
 
     # ------------------------------------------------------
     # Secuencia de sentencias
     # ------------------------------------------------------
 
     def _sequence(self, elements):
-        total = "1"
+        best_total = "1"
+        worst_total = "1"
+        has_early_exit = False
+
         for el in elements:
-            c = self._analyze_node(el)
-            total = combine_additive(total, c)
+            result = self._analyze_node(el)
+            
+            best_total = combine_additive(best_total, result.best)
+            worst_total = combine_additive(worst_total, result.worst)
+            
+            if result.has_early_exit:
+                has_early_exit = True
+
         self.details["combination"] = "Suma de complejidades secuenciales"
-        return total
+        return ComplexityResult(best=best_total, worst=worst_total, has_early_exit=has_early_exit)
 
     # ------------------------------------------------------
     # CICLOS
     # ------------------------------------------------------
 
     def _for_loop(self, node):
-        # node es ahora un diccionario: {"type": "for", "var": ..., "start": ..., "end": ..., "body": ...}
         body = node.get("body")
-        body_c = self._analyze_node(body)
-        iter_c = "n"
-
-        self.details["loops"].append("Ciclo FOR → O(n)")
+        body_result = self._analyze_node(body)
         
-        # Combinar la complejidad del ciclo con la del cuerpo
-        return combine_multiplicative(iter_c, body_c)
+        iter_c = "n"
+        
+        # Si el cuerpo tiene salida temprana (return/break dentro de un if)
+        if body_result.has_early_exit:
+            self.details["loops"].append("Ciclo FOR con salida temprana → Ω(1), O(n)")
+            self.details["early_exit_detected"] = True
+            return ComplexityResult(
+                best="1",  # Mejor caso: sale en primera iteración
+                worst=combine_multiplicative(iter_c, body_result.worst),  # Peor caso: recorre todo
+                has_early_exit=True
+            )
+        else:
+            self.details["loops"].append("Ciclo FOR → O(n)")
+            complexity = combine_multiplicative(iter_c, body_result.worst)
+            return ComplexityResult(best=complexity, worst=complexity)
 
     def _while_loop(self, node):
         body = node.get("body")
-
-        # Por defecto asumimos O(n)
+        body_result = self._analyze_node(body)
+        
         iter_c = "n"
-        body_c = self._analyze_node(body)
-
-        self.details["loops"].append("Ciclo WHILE → O(n)")
-        return combine_multiplicative(iter_c, body_c)
+        
+        if body_result.has_early_exit:
+            self.details["loops"].append("Ciclo WHILE con salida temprana → Ω(1), O(n)")
+            self.details["early_exit_detected"] = True
+            return ComplexityResult(
+                best="1",
+                worst=combine_multiplicative(iter_c, body_result.worst),
+                has_early_exit=True
+            )
+        else:
+            self.details["loops"].append("Ciclo WHILE → O(n)")
+            complexity = combine_multiplicative(iter_c, body_result.worst)
+            return ComplexityResult(best=complexity, worst=complexity)
 
     def _repeat_loop(self, node):
         body = node.get("body")
-        body_c = self._analyze_node(body)
+        body_result = self._analyze_node(body)
 
-        self.details["loops"].append("Ciclo REPEAT → O(n)")
-        return combine_multiplicative("n", body_c)
+        iter_c = "n"
+        
+        if body_result.has_early_exit:
+            self.details["loops"].append("Ciclo REPEAT con salida temprana → Ω(1), O(n)")
+            self.details["early_exit_detected"] = True
+            return ComplexityResult(
+                best="1",
+                worst=combine_multiplicative(iter_c, body_result.worst),
+                has_early_exit=True
+            )
+        else:
+            self.details["loops"].append("Ciclo REPEAT → O(n)")
+            complexity = combine_multiplicative(iter_c, body_result.worst)
+            return ComplexityResult(best=complexity, worst=complexity)
 
     # ------------------------------------------------------
     # IF
     # ------------------------------------------------------
 
     def _if_statement(self, node):
-        # node: {"type": "if", "condition": ..., "then": ..., "else": ...}
-        blocks = []
-        if node.get("then"):
-            blocks.append(node["then"])
-        if node.get("else"):
-            blocks.append(node["else"])
+        then_block = node.get("then")
+        else_block = node.get("else")
         
-        comps = [self._analyze_node(b) for b in blocks]
-        return BigO(comps)
+        then_result = self._analyze_node(then_block) if then_block else ComplexityResult()
+        else_result = self._analyze_node(else_block) if else_block else ComplexityResult()
+        
+        # El mejor caso es el mínimo entre ambas ramas
+        # El peor caso es el máximo entre ambas ramas
+        best_case = BigO([then_result.best, else_result.best]) if else_block else then_result.best
+        worst_case = BigO([then_result.worst, else_result.worst])
+        
+        has_early_exit = then_result.has_early_exit or else_result.has_early_exit
+        
+        return ComplexityResult(best=best_case, worst=worst_case, has_early_exit=has_early_exit)
 
     # ------------------------------------------------------
     # SUBRUTINAS (posible recursión)
@@ -168,20 +242,19 @@ class ComplexityAnalyzer:
 
     def _subroutine(self, node):
         block = node.get("body")
-        # Detectar recursión (simple heurística)
         recursive = self._detect_recursion(node)
 
-        body_c = self._analyze_node(block)
+        body_result = self._analyze_node(block)
 
         if recursive == "simple":
             self.details["recursion"] = "T(n) = T(n-1) + cost"
-            return "n"
+            return ComplexityResult(best="n", worst="n")
 
         if recursive == "divide":
             self.details["recursion"] = "T(n) = 2T(n/2) + cost"
-            return "n log n"
+            return ComplexityResult(best="n log n", worst="n log n")
 
-        return body_c
+        return body_result
 
     # ------------------------------------------------------
     # Heurísticas básicas para detectar recursión
@@ -196,7 +269,6 @@ class ComplexityAnalyzer:
             if isinstance(n, dict):
                 if n.get("type") == "call" and n.get("name") == name:
                     return True
-                # Buscar recursivamente en todos los valores
                 for value in n.values():
                     if isinstance(value, (dict, list)):
                         if search(value):
@@ -208,7 +280,6 @@ class ComplexityAnalyzer:
             return False
 
         if search(block):
-            # Detectar si es T(n-1) o T(n/2)
             text = str(block)
 
             if "/2" in text or "div 2" in text:

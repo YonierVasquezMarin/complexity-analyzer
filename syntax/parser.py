@@ -1,3 +1,4 @@
+# parser.py
 from lark import Lark, Transformer, Token, Tree
 import os
 
@@ -81,6 +82,15 @@ class PseudocodeTransformer(Transformer):
         name = self._extract_value(items[0])
         args = items[1] if len(items) > 1 else []
         return {"type": "call", "name": name, "args": args}
+
+    def return_stmt(self, items):
+        return {"type": "return", "value": items[0] if items else None}
+    
+    def break_stmt(self, items):
+        return {"type": "break"}
+    
+    def continue_stmt(self, items):
+        return {"type": "continue"}
 
     def arg_list(self, items):
         return items

@@ -18,6 +18,9 @@ statement: assignment
          | repeat_loop
          | if_statement
          | call
+         | return_stmt
+         | break_stmt
+         | continue_stmt
          | class_decl
          | object_decl
          | subroutine_decl
@@ -71,6 +74,15 @@ block: "begin" statement* "end"
 call: "CALL" NAME "(" arg_list? ")"
 
 arg_list: expr ("," expr)*
+
+// ──────────────────────────
+// CONTROL DE FLUJO
+// ──────────────────────────
+return_stmt: "return" expr?
+
+break_stmt: "break"
+
+continue_stmt: "continue"
 
 // ──────────────────────────
 // DECLARACIÓN DE CLASES
