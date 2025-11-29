@@ -27,7 +27,6 @@ statement: array_decl
          | class_decl
          | object_decl
          | subroutine_decl
-         | COMMENT
 
 // ──────────────────────────
 // ASIGNACIONES
@@ -216,5 +215,7 @@ STRING: /"[^"]*"/
 COMMENT: "►" /[^\n]*/
 
 %import common.WS
+%import common.NEWLINE
 %ignore WS
+%ignore NEWLINE
 %ignore COMMENT
