@@ -145,7 +145,11 @@ term: factor
 factor: NUMBER
       | variable
       | call_expr
+      | length_func
       | "(" expr ")"
+
+// Función especial length
+length_func: "length" "(" variable ")"
 
 // ──────────────────────────
 // OPERADORES COMO TOKENS

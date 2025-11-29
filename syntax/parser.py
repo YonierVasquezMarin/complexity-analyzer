@@ -88,6 +88,10 @@ class PseudocodeTransformer(Transformer):
         args = items[1] if len(items) > 1 else []
         return {"type": "call", "name": name, "args": args}
 
+    def length_func(self, items):
+        # length(A) - devuelve el tamaño de un arreglo
+        return {"type": "length", "array": items[0] if items else None}
+    
     def return_stmt(self, items):
         return {"type": "return", "value": items[0] if items else None}
     
