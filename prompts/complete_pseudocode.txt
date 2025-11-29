@@ -9,6 +9,14 @@ INSTRUCCIONES:
 6. Asegúrate de que TODO el código generado siga estrictamente la gramática proporcionada
 7. El código generado debe insertarse en la misma posición donde estaba el comentario
 
+IMPORTANTE SOBRE FORMATO Y SALTOS DE LÍNEA:
+- Los comentarios pueden estar en líneas completas (terminando con \n) o al final de una línea con código
+- Si el comentario está en una línea completa, el código generado debe mantener el salto de línea al final
+- Si el comentario está al final de una línea con código, el código generado debe continuar en la misma línea o en nuevas líneas según corresponda
+- MANTÉN los saltos de línea (\n) del código original
+- MANTÉN la estructura de líneas: cada sentencia puede estar en su propia línea
+- El formato del código generado debe ser consistente con el código original
+
 GRAMÁTICA DEL PSEUDOCÓDIGO:
 {grammar}
 
@@ -18,7 +26,7 @@ PSEUDOCÓDIGO A COMPLETAR:
 REGLAS IMPORTANTES:
 - El código generado DEBE ser válido según la gramática proporcionada
 - NO agregues comentarios adicionales ni explicaciones
-- Mantén el estilo, formato e indentación del código original
+- Mantén el estilo, formato, indentación y saltos de línea del código original
 - Solo reemplaza los comentarios que inician con "completar" o "Completar" (case-insensitive)
 - Si hay múltiples comentarios de completado, completa TODOS
 - Retorna ÚNICAMENTE el pseudocódigo completo sin explicaciones, sin markdown, sin código adicional

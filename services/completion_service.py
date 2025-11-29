@@ -102,8 +102,17 @@ class CompletionService:
             # Generar completación con LLM
             completed_code = self.llm_service.generate_completion(prompt)
             
-            # Limpiar el código generado (eliminar espacios en blanco al inicio/final)
-            completed_code = completed_code.strip()
+            # Limpiar el código generado
+            # Eliminar espacios en blanco al inicio, pero preservar saltos de línea al final si el original los tenía
+            completed_code = completed_code.lstrip()
+            
+            # Preservar el salto de línea final si el código original terminaba con uno
+            original_ends_with_newline = code.endswith('\n')
+            if original_ends_with_newline and not completed_code.endswith('\n'):
+                completed_code += '\n'
+            elif not original_ends_with_newline and completed_code.endswith('\n'):
+                # Si el original no terminaba con salto de línea, eliminar el del generado
+                completed_code = completed_code.rstrip('\n')
             
             return completed_code, True
             
