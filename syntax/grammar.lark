@@ -154,6 +154,7 @@ factor: NUMBER
       | call_expr
       | length_func
       | NULL
+      | BOOLEAN
       | "(" expr ")"
 
 // Función especial length
@@ -161,6 +162,9 @@ length_func: "length" "(" variable ")"
 
 // Valor NULL
 NULL: "NULL"
+
+// Valores booleanos
+BOOLEAN: "T" | "F"
 
 // ──────────────────────────
 // OPERADORES COMO TOKENS
