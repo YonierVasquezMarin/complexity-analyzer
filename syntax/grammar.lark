@@ -136,6 +136,8 @@ expr: term
 
 term: factor
     | term MUL_OP factor
+    | term MOD factor
+    | term DIV factor
 
 factor: NUMBER
       | variable
@@ -145,11 +147,16 @@ factor: NUMBER
 // OPERADORES COMO TOKENS
 // ──────────────────────────
 ADD_OP: "+" | "-"
-MUL_OP: "*" | "/" | "mod" | "div"
+MUL_OP: "*" | "/"
 
 // ──────────────────────────
 // TOKENS BÁSICOS
 // ──────────────────────────
+
+// Palabras reservadas (deben ir ANTES de NAME)
+DIV: "div"
+MOD: "mod"
+
 NAME: /[A-Za-z][A-Za-z0-9_]*/
 
 NUMBER: /\d+/

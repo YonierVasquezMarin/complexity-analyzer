@@ -193,7 +193,9 @@ class PseudocodeTransformer(Transformer):
         if len(items) == 1:
             return items[0]
         elif len(items) == 3:
-            return {"type": "binop", "left": items[0], "op": str(items[1]), "right": items[2]}
+            # items[1] puede ser un Token (MUL_OP) o un string literal ("mod", "div")
+            op = str(items[1])
+            return {"type": "binop", "left": items[0], "op": op, "right": items[2]}
         return items[0]
 
     def factor(self, items):
@@ -216,6 +218,12 @@ class PseudocodeTransformer(Transformer):
     
     def MUL_OP(self, token):
         return str(token)
+    
+    def DIV(self, token):
+        return "div"
+    
+    def MOD(self, token):
+        return "mod"
 
     # ---- Utilidades ----
     

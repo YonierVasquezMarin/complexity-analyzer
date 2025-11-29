@@ -1,3 +1,4 @@
+# complexity.py
 # ----------------------------------------------------------
 # Motor avanzado para calcular complejidad computacional
 # Detecta mejor caso (Omega), peor caso (O) y caso promedio (Theta)
@@ -127,7 +128,7 @@ class ComplexityAnalyzer:
         if nodetype == "continue":
             return ComplexityResult()
 
-        if nodetype == "subroutine_decl":
+        if nodetype == "subroutine":
             return self._subroutine(node)
 
         # Otros nodos → complejidad constante
@@ -242,6 +243,9 @@ class ComplexityAnalyzer:
 
     def _subroutine(self, node):
         block = node.get("body")
+        name = node.get("name")
+        
+        # Detectar recursión
         recursive = self._detect_recursion(node)
 
         body_result = self._analyze_node(block)
@@ -265,14 +269,23 @@ class ComplexityAnalyzer:
         name = node.get("name")
         block = node.get("body")
 
+        if not name or not block:
+            return None
+
         def search(n):
             if isinstance(n, dict):
-                if n.get("type") == "call" and n.get("name") == name:
-                    return True
-                for value in n.values():
-                    if isinstance(value, (dict, list)):
-                        if search(value):
-                            return True
+                # Verificar si es una llamada con el mismo nombre
+                if n.get("type") == "call":
+                    call_name = n.get("name")
+                    if call_name == name:
+                        return True
+                
+                # Buscar recursivamente en todos los valores
+                for key, value in n.items():
+                    if key != "name":  # Evitar falsos positivos con el nombre del nodo
+                        if isinstance(value, (dict, list)):
+                            if search(value):
+                                return True
             elif isinstance(n, list):
                 for item in n:
                     if search(item):
@@ -280,11 +293,23 @@ class ComplexityAnalyzer:
             return False
 
         if search(block):
-            text = str(block)
-
-            if "/2" in text or "div 2" in text:
+            # Detectar si es T(n-1) o T(n/2)
+            # Convertimos el bloque a string para buscar patrones
+            text = str(block).lower().replace(" ", "")
+            
+            # Buscar patrones de división por 2
+            division_patterns = [
+                "div2", "/2", "div 2", "/ 2",
+                "'op':'div','right':{'type':'number','value':'2'}",
+                "'op':'/','right':{'type':'number','value':'2'}"
+            ]
+            
+            has_division = any(pattern.replace(" ", "") in text for pattern in division_patterns)
+            
+            if has_division:
                 return "divide"
 
+            # Por defecto, asumir recursión simple
             return "simple"
 
         return None
