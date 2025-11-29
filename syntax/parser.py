@@ -142,8 +142,17 @@ class PseudocodeTransformer(Transformer):
             return {"type": "var", "name": self._extract_value(items[0]), "access": items[1:]}
 
     def array_access(self, items):
-        # Cada acceso tiene un índice (expresión)
+        # Cada acceso tiene un índice (puede ser expr simple o rango)
         return {"type": "array_access", "index": items[0] if items else None}
+    
+    def array_index(self, items):
+        # Si tiene 1 item: índice simple
+        # Si tiene 2 items: rango (start..end)
+        if len(items) == 1:
+            return {"type": "index", "value": items[0]}
+        elif len(items) == 2:
+            return {"type": "range", "start": items[0], "end": items[1]}
+        return {"type": "index", "value": items[0] if items else None}
 
     # ---- Condiciones ----
     

@@ -39,7 +39,9 @@ variable: NAME
         | NAME "." NAME
         | NAME array_access+
 
-array_access: "[" expr "]"
+array_access: "[" array_index "]"
+
+array_index: expr (".." expr)?
 
 // ──────────────────────────
 // CICLO FOR

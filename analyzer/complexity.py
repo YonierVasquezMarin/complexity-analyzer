@@ -130,6 +130,10 @@ class ComplexityAnalyzer:
 
         if nodetype == "subroutine":
             return self._subroutine(node)
+        
+        if nodetype == "var":
+            # Analizar si la variable tiene acceso a rangos
+            return self._analyze_variable(node)
 
         # Otros nodos → complejidad constante
         return ComplexityResult()
@@ -236,6 +240,34 @@ class ComplexityAnalyzer:
         has_early_exit = then_result.has_early_exit or else_result.has_early_exit
         
         return ComplexityResult(best=best_case, worst=worst_case, has_early_exit=has_early_exit)
+
+    # ------------------------------------------------------
+    # Análisis de variables con rangos
+    # ------------------------------------------------------
+    
+    def _analyze_variable(self, node):
+        """
+        Analiza variables. Si tienen acceso a rangos (A[1..j]),
+        esto implica operación sobre múltiples elementos.
+        """
+        access = node.get("access")
+        
+        if not access:
+            return ComplexityResult()
+        
+        # Si access es una lista, revisar cada acceso
+        if isinstance(access, list):
+            for acc in access:
+                if isinstance(acc, dict) and acc.get("type") == "array_access":
+                    index = acc.get("index")
+                    if isinstance(index, dict) and index.get("type") == "range":
+                        # Acceso a rango implica operación O(n) sobre el subarreglo
+                        # Nota: esto es una simplificación, la complejidad real
+                        # depende de lo que se haga con el rango
+                        return ComplexityResult(best="n", worst="n")
+        
+        # Acceso simple a elemento
+        return ComplexityResult()
 
     # ------------------------------------------------------
     # SUBRUTINAS (posible recursión)
