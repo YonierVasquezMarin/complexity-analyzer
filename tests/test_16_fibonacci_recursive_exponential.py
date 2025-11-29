@@ -1,5 +1,6 @@
 """
-Test para verificar el análisis de complejidad de una función fibonacci recursiva.
+Test para verificar el análisis de complejidad de una función fibonacci recursiva
+con complejidad exponencial.
 
 Pseudocódigo evaluado:
 fibonacci(n) begin if (n < 2) then begin return n end return CALL fibonacci(n - 1) + CALL fibonacci(n - 2) end
@@ -8,12 +9,12 @@ fibonacci(n) begin if (n < 2) then begin return n end return CALL fibonacci(n - 
 from services.analysis_service import analyze_pseudocode
 
 
-def test_recursive_fibonacci():
+def test_fibonacci_recursive_exponential():
     """
-    PRUEBA: Función fibonacci recursiva
+    PRUEBA: Función fibonacci recursiva con complejidad exponencial
     
     Verifica que una función fibonacci recursiva que llama a sí misma con n-1 y n-2
-    genere la complejidad O(n), Ω(n) y Θ(n), con recursión T(n) = T(n-1) + cost.
+    genere la complejidad O(2^n), Ω(2^n) y Θ(2^n), con recursión T(n) = 2T(n-1) + cost (exponencial).
     """
     # Pseudocódigo a evaluar
     pseudocode = "fibonacci(n) begin if (n < 2) then begin return n end return CALL fibonacci(n - 1) + CALL fibonacci(n - 2) end"
@@ -23,12 +24,12 @@ def test_recursive_fibonacci():
     
     # Resultado esperado
     expected_result = {
-        "O": "O(n)",
-        "Omega": "Ω(n)",
-        "Theta": "Θ(n)",
+        "O": "O(2^n)",
+        "Omega": "Ω(2^n)",
+        "Theta": "Θ(2^n)",
         "details": {
             "loops": [],
-            "recursion": "T(n) = T(n-1) + cost",
+            "recursion": "T(n) = 2T(n-1) + cost (exponencial)",
             "combination": "Suma de complejidades secuenciales",
             "early_exit_detected": False
         }
