@@ -78,7 +78,12 @@ class PseudocodeTransformer(Transformer):
     def block(self, items):
         return {"type": "block", "body": items}
 
-    def call(self, items):
+    def call_stmt(self, items):
+        name = self._extract_value(items[0])
+        args = items[1] if len(items) > 1 else []
+        return {"type": "call", "name": name, "args": args}
+    
+    def call_expr(self, items):
         name = self._extract_value(items[0])
         args = items[1] if len(items) > 1 else []
         return {"type": "call", "name": name, "args": args}

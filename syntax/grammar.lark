@@ -17,7 +17,7 @@ statement: assignment
          | while_loop
          | repeat_loop
          | if_statement
-         | call
+         | call_stmt
          | return_stmt
          | break_stmt
          | continue_stmt
@@ -71,7 +71,9 @@ block: "begin" statement* "end"
 // ──────────────────────────
 // LLAMADO A SUBRUTINAS
 // ──────────────────────────
-call: "CALL" NAME "(" arg_list? ")"
+call_stmt: "CALL" NAME "(" arg_list? ")"
+
+call_expr: "CALL" NAME "(" arg_list? ")"
 
 arg_list: expr ("," expr)*
 
@@ -141,6 +143,7 @@ term: factor
 
 factor: NUMBER
       | variable
+      | call_expr
       | "(" expr ")"
 
 // ──────────────────────────
