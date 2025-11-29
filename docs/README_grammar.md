@@ -1,36 +1,36 @@
-# Documentación de la Gramática Lark
+# Documentación de la Gramática
 
-Este documento explica en detalle la gramática definida en `syntax/grammar.lark`, que describe el pseudocódigo soportado por el analizador de complejidad.
+Este documento describe la gramática definida en `syntax/grammar.lark`, que define el pseudocódigo soportado por el analizador de complejidad.
 
 ## Índice
 
 1. [Introducción](#introducción)
 2. [Estructura General](#estructura-general)
 3. [Sentencias Principales](#sentencias-principales)
-4. [Asignaciones](#asignaciones)
+4. [Asignaciones y Variables](#asignaciones-y-variables)
 5. [Estructuras de Control](#estructuras-de-control)
 6. [Expresiones](#expresiones)
 7. [Programación Orientada a Objetos](#programación-orientada-a-objetos)
-8. [Subrutinas](#subrutinas)
-9. [Tokens y Reglas Especiales](#tokens-y-reglas-especiales)
+8. [Grafos](#grafos)
+9. [Subrutinas](#subrutinas)
+10. [Tokens y Valores](#tokens-y-valores)
 
 ---
 
 ## Introducción
 
-La gramática está diseñada para analizar pseudocódigo que incluye:
+La gramática soporta pseudocódigo con:
 - Estructuras de control (FOR, WHILE, REPEAT, IF)
-- Asignaciones con símbolo especial
-- Objetos y clases
-- Arreglos
+- Asignaciones con símbolo especial 🡨
+- Objetos, clases y grafos
+- Arreglos y matrices
 - Subrutinas y llamadas a funciones
 - Expresiones matemáticas y lógicas
+- Control de flujo (return, break, continue)
 
 ---
 
 ## Estructura General
-
-### Programa
 
 Un programa está compuesto por una o más sentencias:
 
@@ -50,40 +50,27 @@ end
 
 ## Sentencias Principales
 
-Las sentencias que puede contener un programa son:
+Las sentencias soportadas son:
 
-```
-statement: assignment
-         | for_loop
-         | while_loop
-         | repeat_loop
-         | if_statement
-         | call
-         | class_decl
-         | object_decl
-         | subroutine_decl
-         | COMMENT
-```
-
-Cada tipo de sentencia se detalla a continuación.
+- `assignment` - Asignaciones
+- `array_decl` - Declaración de arreglos locales
+- `for_loop`, `while_loop`, `repeat_loop` - Ciclos
+- `if_statement` - Condicionales
+- `call_stmt` - Llamadas a subrutinas
+- `return_stmt`, `break_stmt`, `continue_stmt` - Control de flujo
+- `class_decl`, `object_decl` - Clases y objetos
+- `graph_decl`, `graph_obj` - Grafos
+- `subroutine_decl` - Declaración de subrutinas
 
 ---
 
-## Asignaciones
+## Asignaciones y Variables
 
-### Sintaxis
+### Asignaciones
 
-```
-assignment: variable ASSIGN expr
-```
+Sintaxis: `variable 🡨 expresión`
 
-### Operador de Asignación
-
-El operador de asignación es el símbolo especial **🡨** (flecha hacia la izquierda):
-
-```
-ASSIGN: "🡨"
-```
+El operador de asignación es el símbolo **🡨** (flecha hacia la izquierda).
 
 **Ejemplos:**
 ```
@@ -96,15 +83,9 @@ arreglo[5] 🡨 100
 ### Variables
 
 Las variables pueden ser:
-- Nombres simples: `x`, `contador`, `miVariable`
+- Nombres simples: `x`, `contador`
 - Campos de objetos: `objeto.campo`
 - Elementos de arreglos: `arreglo[indice]` o `arreglo[inicio..fin]`
-
-```
-variable: NAME
-        | NAME "." NAME
-        | NAME array_index
-```
 
 **Ejemplos:**
 ```
@@ -114,21 +95,14 @@ vector[5]            // Elemento de arreglo
 matriz[1..10]        // Rango de elementos
 ```
 
-### Índices de Arreglos
+### Declaración de Arreglos Locales
 
-Los arreglos soportan índices simples o rangos:
+Sintaxis: `array nombreArray[tamaño]`
 
+**Ejemplo:**
 ```
-array_index: "[" index_range "]"
-index_range: expr (".." expr)?
-```
-
-**Ejemplos:**
-```
-arr[5]           // Índice simple
-arr[1..10]       // Rango de índices
-arr[i]           // Índice con variable
-arr[inicio..fin] // Rango con variables
+array miArreglo[10]
+array matriz[5][5]
 ```
 
 ---
@@ -137,12 +111,7 @@ arr[inicio..fin] // Rango con variables
 
 ### Ciclo FOR
 
-Sintaxis:
-```
-for_loop: "for" NAME ASSIGN expr "to" expr "do" block
-```
-
-Donde `ASSIGN` es el símbolo `🡨` (el mismo que se usa para asignaciones).
+Sintaxis: `for variable 🡨 inicio to fin do bloque`
 
 **Ejemplo:**
 ```
@@ -153,10 +122,7 @@ end
 
 ### Ciclo WHILE
 
-Sintaxis:
-```
-while_loop: "while" "(" condition ")" "do" block
-```
+Sintaxis: `while (condición) do bloque`
 
 **Ejemplo:**
 ```
@@ -167,10 +133,7 @@ end
 
 ### Ciclo REPEAT UNTIL
 
-Sintaxis:
-```
-repeat_loop: "repeat" block "until" "(" condition ")"
-```
+Sintaxis: `repeat bloque until (condición)`
 
 **Ejemplo:**
 ```
@@ -181,10 +144,7 @@ end until (x >= 100)
 
 ### Sentencia IF
 
-Sintaxis:
-```
-if_statement: "if" "(" condition ")" "then" block ("else" block)?
-```
+Sintaxis: `if (condición) then bloque [else bloque]`
 
 El bloque `else` es opcional.
 
@@ -201,15 +161,15 @@ end else begin
 end
 ```
 
+### Control de Flujo
+
+- `return expresión` - Retorna un valor (la expresión es opcional)
+- `break` - Sale de un ciclo
+- `continue` - Salta a la siguiente iteración
+
 ### Bloques
 
-Los bloques se definen con `begin` y `end`:
-
-```
-block: "begin" statement* "end"
-```
-
-Pueden contener cero o más sentencias.
+Los bloques se definen con `begin` y `end` y pueden contener cero o más sentencias.
 
 ---
 
@@ -217,27 +177,10 @@ Pueden contener cero o más sentencias.
 
 ### Expresiones Lógicas
 
-Las condiciones lógicas soportan operadores `and`, `or`, y `not`:
-
-```
-condition: or_expr
-
-or_expr: and_expr
-       | or_expr "or" and_expr
-
-and_expr: not_expr
-        | and_expr "and" not_expr
-
-not_expr: comparison
-         | "not" not_expr
-
-comparison: expr (REL_OP expr)?
-```
+Soportan operadores `and`, `or`, y `not` con precedencia estándar.
 
 **Operadores de Comparación:**
-```
-REL_OP: "<" | ">" | "<=" | ">=" | "=" | "≠"
-```
+- `<`, `>`, `<=`, `>=`, `=`, `≠`
 
 **Ejemplos:**
 ```
@@ -252,26 +195,7 @@ not (x = 0)
 
 ### Expresiones Matemáticas
 
-Las expresiones matemáticas siguen la precedencia estándar:
-
-```
-expr: term
-    | expr ADD_OP term
-
-term: factor
-    | term MUL_OP factor
-
-factor: NUMBER
-      | variable
-      | "(" expr ")"
-```
-
-Los operadores están definidos como tokens:
-
-```
-ADD_OP: "+" | "-"
-MUL_OP: "*" | "/" | "mod" | "div"
-```
+Siguen la precedencia estándar (multiplicación/división antes que suma/resta).
 
 **Operadores:**
 - Suma: `+`
@@ -292,17 +216,28 @@ x mod 2
 x div 3
 ```
 
+### Funciones Especiales
+
+- `length(expresión)` - Longitud de un arreglo o cadena
+- `ceiling(expresión)` o `┌expresión┐` - Techo (redondeo hacia arriba)
+- `floor(expresión)` o `└expresión┘` - Piso (redondeo hacia abajo)
+
+**Ejemplos:**
+```
+length(arreglo)
+ceiling(x / 2)
+┌x / 2┐
+floor(x / 2)
+└x / 2┘
+```
+
 ---
 
 ## Programación Orientada a Objetos
 
 ### Declaración de Clases
 
-Sintaxis:
-```
-class_decl: NAME "{" class_attr* "}"
-class_attr: NAME
-```
+Sintaxis: `NombreClase {atributo1 atributo2 ...}`
 
 **Ejemplo:**
 ```
@@ -312,12 +247,7 @@ Persona {nombre edad direccion}
 
 ### Declaración de Objetos
 
-Sintaxis:
-```
-object_decl: NAME NAME
-```
-
-El primer `NAME` es el tipo (clase) y el segundo es el nombre del objeto.
+Sintaxis: `Clase nombreObjeto`
 
 **Ejemplo:**
 ```
@@ -333,46 +263,58 @@ miCasa.color 🡨 "azul"
 
 ---
 
+## Grafos
+
+### Declaración de Grafos
+
+Sintaxis: `Graph NombreGrafo {atributo1 atributo2 ...}`
+
+**Ejemplo:**
+```
+Graph GrafoCiudad {nodos aristas}
+```
+
+### Instancias de Grafos
+
+Sintaxis: `Graph nombreInstancia`
+
+**Ejemplo:**
+```
+Graph miGrafo
+```
+
+---
+
 ## Subrutinas
 
 ### Declaración de Subrutinas
 
-Sintaxis:
-```
-subroutine_decl: NAME "(" param_list? ")" block
+Sintaxis: `nombreSubrutina(parámetros) bloque`
 
-param_list: param ("," param)*
-
-param: NAME
-     | NAME array_dims
-     | NAME NAME      // Clase objeto
-
-array_dims: ("[" expr? "]")+
-```
+Los parámetros pueden ser:
+- Variables simples: `a`
+- Arreglos: `arr[]` o `matriz[][]`
+- Objetos: `objeto Clase`
 
 **Ejemplos:**
 ```
 calcularSuma(a, b) begin
     resultado 🡨 a + b
+    return resultado
 end
 
 procesarArreglo(arr[]) begin
-    // procesar arreglo
+    ► procesar arreglo
 end
 
 manejarObjeto(p Persona) begin
-    // usar objeto p
+    ► usar objeto p
 end
 ```
 
 ### Llamadas a Subrutinas
 
-Sintaxis:
-```
-call: "CALL" NAME "(" arg_list? ")"
-
-arg_list: expr ("," expr)*
-```
+Sintaxis: `CALL nombreSubrutina(argumentos)`
 
 **Ejemplos:**
 ```
@@ -383,111 +325,50 @@ CALL imprimirResultado(x, y, z)
 
 ---
 
-## Tokens y Reglas Especiales
+## Tokens y Valores
 
-### Tokens Básicos
+### Identificadores (NAME)
 
-#### NAME (Identificadores)
+Deben comenzar con una letra y pueden contener letras, dígitos y guiones bajos.
 
-```
-NAME: /[A-Za-z][A-Za-z0-9_]*/
-```
+**Ejemplos:** `x`, `contador`, `mi_variable`, `Clase1`
 
-- Debe comenzar con una letra
-- Puede contener letras, dígitos y guiones bajos
-- Ejemplos: `x`, `contador`, `mi_variable`, `Clase1`
+### Números (NUMBER)
 
-#### NUMBER (Números)
+Solo enteros positivos.
 
-```
-NUMBER: /\d+/
-```
+**Ejemplos:** `0`, `5`, `100`, `12345`
 
-- Solo enteros positivos
-- Ejemplos: `0`, `5`, `100`, `12345`
+### Cadenas (STRING)
 
-#### COMMENT (Comentarios)
+Cadenas de texto entre comillas dobles.
 
-```
-COMMENT: "►" /[^\n]*/
-```
+**Ejemplos:** `"Hola"`, `"texto con espacios"`
 
-- Los comentarios comienzan con `►`
-- Todo hasta el final de la línea se ignora
-- Los comentarios se ignoran mediante `%ignore COMMENT`
-- Ejemplo: `► Este es un comentario`
+### Valores Booleanos
 
-### Reglas de Espaciado
+- `T` - Verdadero
+- `F` - Falso
 
-```
-%import common.WS
-%ignore WS
-%ignore COMMENT
-```
+### Valor NULL
 
-- Los espacios en blanco se ignoran automáticamente
-- Los comentarios también se ignoran
-- Importado de la biblioteca común de Lark
+- `NULL` - Valor nulo
 
----
+### Comentarios
 
-## Ejemplos Completos
+Los comentarios comienzan con `►` y todo hasta el final de la línea se ignora.
 
-### Ejemplo 1: Programa Simple
-
-```
-x 🡨 0
-for i 🡨 1 to 10 do begin
-    x 🡨 x + i
-end
-► Fin del programa
-```
-
-### Ejemplo 2: Con Condicionales
-
-```
-x 🡨 5
-if (x > 0) then begin
-    resultado 🡨 positivo
-end else begin
-    resultado 🡨 negativo
-end
-```
-
-### Ejemplo 3: Con Objetos
-
-```
-Casa {area color}
-Casa miCasa
-miCasa.area 🡨 100
-miCasa.color 🡨 "azul"
-```
-
-### Ejemplo 4: Con Subrutinas
-
-```
-sumar(a, b) begin
-    resultado 🡨 a + b
-end
-
-x 🡨 5
-y 🡨 10
-CALL sumar(x, y)
-```
+**Ejemplo:** `► Este es un comentario`
 
 ---
 
 ## Notas Importantes
 
-1. **Símbolo de Asignación**: El símbolo `🡨` se usa tanto para asignaciones como para el ciclo FOR. Si tu editor no lo soporta, considera usar una alternativa como `<-` o `:=`.
-
-3. **Símbolo de Desigualdad**: El símbolo `≠` puede requerir codificación UTF-8 adecuada.
-
-4. **Comentarios**: Los comentarios usan el símbolo `►` y se ignoran completamente durante el análisis.
-
-5. **Precedencia de Operadores**: Las expresiones matemáticas respetan la precedencia estándar (multiplicación/división antes que suma/resta).
-
-6. **Bloques Vacíos**: Los bloques `begin end` pueden estar vacíos (sin sentencias).
+1. **Símbolo de Asignación**: El símbolo `🡨` se usa para asignaciones y en el ciclo FOR.
+2. **Símbolo de Desigualdad**: El símbolo `≠` requiere codificación UTF-8.
+3. **Comentarios**: Los comentarios usan el símbolo `►` y se ignoran durante el análisis.
+4. **Precedencia**: Las expresiones respetan la precedencia estándar (multiplicación/división antes que suma/resta).
+5. **Bloques Vacíos**: Los bloques `begin end` pueden estar vacíos.
 
 ---
 
