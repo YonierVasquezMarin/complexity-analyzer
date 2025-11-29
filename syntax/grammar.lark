@@ -153,10 +153,14 @@ factor: NUMBER
       | variable
       | call_expr
       | length_func
+      | NULL
       | "(" expr ")"
 
 // Función especial length
 length_func: "length" "(" variable ")"
+
+// Valor NULL
+NULL: "NULL"
 
 // ──────────────────────────
 // OPERADORES COMO TOKENS
