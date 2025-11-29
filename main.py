@@ -1,6 +1,11 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, HTTPException
 from fastapi.responses import JSONResponse
 from services.analysis_service import analyze_pseudocode
+from services.completion_service import CompletionService
+from dotenv import load_dotenv
+
+# Cargar variables de entorno
+load_dotenv()
 
 app = FastAPI(
     title="Complexity Analyzer API",
@@ -50,3 +55,40 @@ def analyze_endpoint(payload: dict):
     pseudocode = payload.get("code", "")
     result = analyze_pseudocode(pseudocode)
     return result
+
+
+@app.post("/complete-code")
+def complete_code_endpoint(payload: dict):
+    """
+    Endpoint para completar pseudocódigo usando IA.
+    Recibe un payload con el código en el campo 'code' y detecta
+    comentarios que inician con "completar" o "Completar" para
+    generar el código faltante.
+    
+    Retorna:
+    - code: El pseudocódigo completo (original o completado)
+    - extendedByLlm: True si se usó IA para completar, False en caso contrario
+    """
+    try:
+        pseudocode = payload.get("code", "")
+        
+        if not pseudocode:
+            raise HTTPException(
+                status_code=400,
+                detail="El campo 'code' es requerido y no puede estar vacío"
+            )
+        
+        completion_service = CompletionService()
+        completed_code, extended_by_llm = completion_service.complete_code(pseudocode)
+        
+        return {
+            "code": completed_code,
+            "extendedByLlm": extended_by_llm
+        }
+        
+    except ValueError as e:
+        raise HTTPException(status_code=500, detail=str(e))
+    except FileNotFoundError as e:
+        raise HTTPException(status_code=500, detail=str(e))
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Error al completar el código: {str(e)}")
