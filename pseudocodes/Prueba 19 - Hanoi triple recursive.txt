@@ -1,0 +1,11 @@
+hanoi(n)
+begin
+    if (n = 1) then
+    begin
+        return 1
+    end
+    CALL hanoi(n - 1)
+    CALL hanoi(n - 1)
+    CALL hanoi(n - 1)
+end
+

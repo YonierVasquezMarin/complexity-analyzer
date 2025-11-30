@@ -1,0 +1,6 @@
+obtenerElemento(arr)
+begin
+    x 🡨 arr[5]
+    return x
+end
+

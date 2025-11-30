@@ -1,0 +1,11 @@
+procesarSubarreglo(A, n)
+begin
+    temp 🡨 A[1..n]
+    for i 🡨 1 to n do
+    begin
+        x 🡨 temp[i]
+        suma 🡨 suma + x
+    end
+    return suma
+end
+

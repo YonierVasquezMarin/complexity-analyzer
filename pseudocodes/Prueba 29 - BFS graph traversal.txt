@@ -1,0 +1,27 @@
+Graph Grafo {nodos aristas adj}
+BFS(G, inicio)
+begin
+    Graph G
+    visitados 🡨 NULL
+    cola 🡨 NULL
+    CALL encolar(cola, inicio)
+    while (cola ≠ NULL) do
+    begin
+        actual 🡨 CALL desencolar(cola)
+        if (visitados[actual] = F) then
+        begin
+            visitados[actual] 🡨 T
+            vecinos 🡨 G.adj[actual]
+            n 🡨 length(vecinos)
+            for i 🡨 1 to n do
+            begin
+                vecino 🡨 vecinos[i]
+                if (visitados[vecino] = F) then
+                begin
+                    CALL encolar(cola, vecino)
+                end
+            end
+        end
+    end
+end
+

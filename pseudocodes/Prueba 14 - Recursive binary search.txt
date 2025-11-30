@@ -1,0 +1,17 @@
+busqueda(arr, n)
+begin
+    if (n = 1) then
+    begin
+        return arr
+    end
+    mitad 🡨 n div 2
+    if (arr < valor) then
+    begin
+        CALL busqueda(arr, mitad)
+    end
+    else
+    begin
+        CALL busqueda(arr, mitad)
+    end
+end
+

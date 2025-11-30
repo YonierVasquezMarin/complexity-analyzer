@@ -1,0 +1,22 @@
+verificarCondiciones(arr, n)
+begin
+    encontrado 🡨 F
+    contador 🡨 0
+    for i 🡨 1 to n do
+    begin
+        if (arr[i] > 10) then
+        begin
+            encontrado 🡨 T
+            contador 🡨 contador + 1
+        end
+    end
+    if (encontrado = T) then
+    begin
+        return contador
+    end
+    else
+    begin
+        return 0
+    end
+end
+

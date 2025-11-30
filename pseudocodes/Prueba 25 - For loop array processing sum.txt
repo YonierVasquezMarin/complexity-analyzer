@@ -1,0 +1,12 @@
+procesarDatos(n)
+begin
+    array temp[n]
+    suma 🡨 0
+    for i 🡨 1 to n do
+    begin
+        temp[i] 🡨 i * 2
+        suma 🡨 suma + temp[i]
+    end
+    return suma
+end
+

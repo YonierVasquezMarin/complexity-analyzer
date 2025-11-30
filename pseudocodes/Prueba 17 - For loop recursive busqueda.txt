@@ -1,0 +1,13 @@
+for i 🡨 1 to n do
+begin
+    busqueda(arr, n)
+    begin
+        if (n = 1) then
+        begin
+            return arr
+        end
+        mitad 🡨 n div 2
+        CALL busqueda(arr, mitad)
+    end
+end
+

@@ -1,0 +1,25 @@
+► Este algoritmo calcula el factorial de forma iterativa
+calcularFactorial(n)
+begin
+    ► Validar entrada
+    if (n < 0) then
+    begin
+        return NULL
+    end
+    ► Caso base
+    if (n = 0) then
+    begin
+        return 1
+    end
+    ► Inicializar resultado
+    resultado 🡨 1
+    ► Calcular factorial iterativamente
+    for i 🡨 1 to n do
+    begin
+        ► Multiplicar resultado por i
+        resultado 🡨 resultado * i
+    end
+    ► Retornar el factorial calculado
+    return resultado
+end
+

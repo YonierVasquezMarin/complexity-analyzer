@@ -1,0 +1,13 @@
+recorrerMatriz(matriz, n)
+begin
+    for i 🡨 1 to n do
+    begin
+        for j 🡨 1 to n do
+        begin
+            x 🡨 matriz[i][j]
+            suma 🡨 suma + x
+        end
+    end
+    return suma
+end
+

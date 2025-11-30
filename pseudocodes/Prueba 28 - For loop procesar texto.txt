@@ -1,0 +1,19 @@
+procesarTexto(texto)
+begin
+    n 🡨 length(texto)
+    resultado 🡨 ""
+    for i 🡨 1 to n do
+    begin
+        char 🡨 texto[i]
+        resultado 🡨 resultado + char
+    end
+    if (resultado = texto) then
+    begin
+        return T
+    end
+    else
+    begin
+        return F
+    end
+end
+

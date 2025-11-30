@@ -1,0 +1,10 @@
+proceso(n)
+begin
+    if (n = 1) then
+    begin
+        return 1
+    end
+    mitad 🡨 n div 2
+    CALL proceso(mitad)
+end
+

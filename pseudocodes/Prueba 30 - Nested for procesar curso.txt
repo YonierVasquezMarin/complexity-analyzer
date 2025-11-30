@@ -1,0 +1,25 @@
+Estudiante {nombre edad notas promedio}
+Curso {nombre estudiantes capacidad}
+procesarCurso(c)
+begin
+    Curso miCurso
+    miCurso 🡨 c
+    n 🡨 length(miCurso.estudiantes)
+    suma 🡨 0
+    for i 🡨 1 to n do
+    begin
+        Estudiante est
+        est 🡨 miCurso.estudiantes[i]
+        numNotas 🡨 length(est.notas)
+        sumaNotas 🡨 0
+        for j 🡨 1 to numNotas do
+        begin
+            sumaNotas 🡨 sumaNotas + est.notas[j]
+        end
+        est.promedio 🡨 sumaNotas / numNotas
+        suma 🡨 suma + est.promedio
+    end
+    promedioCurso 🡨 suma / n
+    return promedioCurso
+end
+

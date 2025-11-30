@@ -1,0 +1,11 @@
+for i 🡨 1 to n do
+begin
+    for j 🡨 1 to n do
+    begin
+        if (matriz = valor) then
+        begin
+            return j
+        end
+    end
+end
+

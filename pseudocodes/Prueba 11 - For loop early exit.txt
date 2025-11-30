@@ -1,0 +1,8 @@
+for i 🡨 1 to n do
+begin
+    if (arr = target) then
+    begin
+        return i
+    end
+end
+

@@ -1,0 +1,11 @@
+sumarArreglo(A)
+begin
+    n 🡨 length(A)
+    suma 🡨 0
+    for i 🡨 1 to n do
+    begin
+        suma 🡨 suma + A[i]
+    end
+    return suma
+end
+

@@ -1,0 +1,8 @@
+if (x > 0) then
+begin
+    for i 🡨 1 to n do
+    begin
+        y 🡨 y + 1
+    end
+end
+

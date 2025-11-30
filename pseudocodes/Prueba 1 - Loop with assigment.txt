@@ -1,0 +1,5 @@
+for i 🡨 1 to n do
+begin
+    x 🡨 x + 1
+end
+

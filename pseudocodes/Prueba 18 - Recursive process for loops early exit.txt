@@ -1,0 +1,27 @@
+proceso(n)
+begin
+    if (n = 1) then
+    begin
+        return 1
+    end
+    mitad 🡨 n div 2
+    CALL proceso(mitad)
+end
+for i 🡨 1 to n do
+begin
+    if (i mod 2 = 0) then
+    begin
+        for j 🡨 1 to n do
+        begin
+            if (arr = target) then
+            begin
+                break
+            end
+        end
+    end
+    else
+    begin
+        CALL proceso(n)
+    end
+end
+

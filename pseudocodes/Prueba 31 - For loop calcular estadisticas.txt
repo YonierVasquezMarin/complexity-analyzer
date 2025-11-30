@@ -1,0 +1,20 @@
+calcularEstadisticas(arr, n)
+begin
+    suma 🡨 0
+    for i 🡨 1 to n do
+    begin
+        suma 🡨 suma + arr[i]
+    end
+    promedio 🡨 suma / n
+    varianza 🡨 0
+    for i 🡨 1 to n do
+    begin
+        diferencia 🡨 arr[i] - promedio
+        cuadrado 🡨 diferencia * diferencia
+        varianza 🡨 varianza + cuadrado
+    end
+    varianza 🡨 varianza / n
+    desviacion 🡨 varianza / 2
+    return desviacion
+end
+

@@ -1,0 +1,8 @@
+for i 🡨 1 to n do
+begin
+    while (j < n) do
+    begin
+        x 🡨 x + 1
+    end
+end
+

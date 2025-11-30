@@ -1,0 +1,15 @@
+buscarNodo(nodo)
+begin
+    if (nodo = NULL) then
+    begin
+        return 0
+    end
+    valor 🡨 nodo.dato
+    siguiente 🡨 nodo.siguiente
+    if (siguiente = NULL) then
+    begin
+        return valor
+    end
+    return valor + CALL buscarNodo(siguiente)
+end
+
