@@ -157,4 +157,9 @@ print(result["O"])      # "O(n^2)"
 print(result["Omega"])  # "Ω(n^2)"
 print(result["Theta"])  # "Θ(n^2)"
 ```
+## Extensiones VS Code recomendadas
 
+- Lark
+- Pylance
+- Pylint
+- Task Manager
