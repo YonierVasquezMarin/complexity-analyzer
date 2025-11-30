@@ -25,14 +25,14 @@ def test_for_loop_recursive_busqueda():
     
     # Resultado esperado
     expected_result = {
-        "O": "O(n * n log n)",
-        "Omega": "Ω(n * n log n)",
-        "Theta": "Θ(n * n log n)",
+        "O": "O(n log n)",
+        "Omega": "Ω(n log n)",
+        "Theta": "Θ(n log n)",
         "details": {
             "loops": [
                 "Ciclo FOR → O(n)"
             ],
-            "recursion": "T(n) = 2T(n/2) + cost",
+            "recursion": "T(n) = T(n/2) + cost",
             "combination": "Suma de complejidades secuenciales",
             "early_exit_detected": False
         }

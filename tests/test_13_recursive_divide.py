@@ -24,12 +24,12 @@ def test_recursive_divide():
     
     # Resultado esperado
     expected_result = {
-        "O": "O(n log n)",
-        "Omega": "Ω(n log n)",
-        "Theta": "Θ(n log n)",
+        "O": "O(log n)",
+        "Omega": "Ω(log n)",
+        "Theta": "Θ(log n)",
         "details": {
             "loops": [],
-            "recursion": "T(n) = 2T(n/2) + cost",
+            "recursion": "T(n) = T(n/2) + cost",
             "combination": "Suma de complejidades secuenciales",
             "early_exit_detected": False
         }

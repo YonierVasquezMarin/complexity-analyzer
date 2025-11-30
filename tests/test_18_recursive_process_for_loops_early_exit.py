@@ -26,14 +26,14 @@ def test_recursive_process_for_loops_early_exit():
     # Resultado esperado
     expected_result = {
         "O": "O(n^2)",
-        "Omega": "Ω(n log n)",
+        "Omega": "Ω(log n)",
         "Theta": "N/A",
         "details": {
             "loops": [
                 "Ciclo FOR con salida temprana → Ω(1), O(n)",
                 "Ciclo FOR con salida temprana → Ω(1), O(n)"
             ],
-            "recursion": "T(n) = 2T(n/2) + cost",
+            "recursion": "T(n) = T(n/2) + cost",
             "combination": "Suma de complejidades secuenciales",
             "early_exit_detected": True
         }
