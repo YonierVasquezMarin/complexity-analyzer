@@ -76,7 +76,7 @@ class ComplexityAnalyzer:
         O = f"O({result.worst})"
         Omega = f"Ω({result.best})"
         
-        # Si best == worst, entonces existe Theta
+        # Si best == worst, entonces existe Theta (cota fuerte)
         if result.best == result.worst:
             Theta = f"Θ({result.avg})"
         else:
@@ -335,10 +335,15 @@ class ComplexityAnalyzer:
             return ComplexityResult(best="n", worst="n")
 
         if recursive_type == "divide":
-            if has_early_return:
-                self.details["recursion"] = "T(n) = T(n/2) + cost con salida temprana"
-                return ComplexityResult(best="1", worst="log n")
+            # Contar cuántas llamadas recursivas hay realmente
+            num_calls = self._count_recursive_calls(block, name)
+            
+            if num_calls == 1:
+                # Una sola llamada con división: T(n) = T(n/2) + cost → O(log n)
+                self.details["recursion"] = "T(n) = T(n/2) + cost"
+                return ComplexityResult(best="log n", worst="log n")
             else:
+                # Múltiples llamadas con división: T(n) = 2T(n/2) + cost → O(n log n)
                 self.details["recursion"] = "T(n) = 2T(n/2) + cost"
                 return ComplexityResult(best="n log n", worst="n log n")
         
@@ -354,41 +359,60 @@ class ComplexityAnalyzer:
     
     def _has_early_return_before_recursion(self, block, function_name):
         """
-        Detecta si hay un return condicional ANTES de las llamadas recursivas.
-        Ejemplo: if (condición) then return valor
+        Detecta VERDADERAS salidas tempranas (opcionales), no casos base (obligatorios).
+        
+        Diferencia clave:
+        - CASO BASE: if (condición_base) return → luego SIEMPRE hay recursión
+          Ejemplo: if (n=1) return 1; CALL func(n-1)  ← Solo un camino ejecuta recursión
+        
+        - SALIDA TEMPRANA: if (encontrado) return → recursión en AMBOS caminos
+          Ejemplo: if (arr[i]=x) return i; CALL func(...)  ← Puede evitar recursión
         """
         if not isinstance(block, dict):
             return False
         
-        # Buscar estructura: if (...) then return (sin llamada recursiva en ese branch)
-        def search_early_return(node):
+        # Buscar patrón: if sin else con return, seguido de recursión fuera del if
+        def analyze_block_structure(node):
             if not isinstance(node, dict):
                 return False
             
-            node_type = node.get("type")
-            
-            # Si es un IF
-            if node_type == "if":
-                then_block = node.get("then")
-                
-                # Verificar si el THEN tiene return sin recursión
-                if then_block:
-                    has_return = self._contains_return(then_block)
-                    has_recursion = self._contains_call_to(then_block, function_name)
-                    
-                    if has_return and not has_recursion:
-                        return True
-            
-            # Buscar recursivamente en el árbol
-            if node_type == "block":
+            if node.get("type") == "block":
                 body = node.get("body", [])
+                
+                # Buscar patrón secuencial: IF con return + llamada recursiva después
+                has_if_return_without_else = False
+                has_recursion_after = False
+                
+                for i, item in enumerate(body):
+                    if isinstance(item, dict):
+                        # Es un IF sin ELSE con return?
+                        if item.get("type") == "if" and not item.get("else"):
+                            then_block = item.get("then")
+                            if then_block and self._contains_return(then_block):
+                                has_if_return_without_else = True
+                                
+                                # Hay recursión DESPUÉS de este IF?
+                                for j in range(i + 1, len(body)):
+                                    if self._contains_call_to(body[j], function_name):
+                                        has_recursion_after = True
+                                        break
+                
+                # Si hay IF-return seguido de recursión, es CASO BASE (no salida temprana)
+                if has_if_return_without_else and has_recursion_after:
+                    return False  # NO es salida temprana
+                
+                # Si hay IF-return pero NO hay recursión después, ES salida temprana
+                if has_if_return_without_else and not has_recursion_after:
+                    return True  # SÍ es salida temprana
+                
+                # Buscar recursivamente en sub-bloques
                 for item in body:
-                    if search_early_return(item):
+                    if analyze_block_structure(item):
                         return True
             
             return False
         
-        return search_early_return(block)
+        return analyze_block_structure(block)
     
     def _contains_return(self, node):
         """Verifica si un nodo contiene return"""
@@ -417,6 +441,25 @@ class ComplexityAnalyzer:
                 if self._contains_call_to(item, function_name):
                     return True
         return False
+    
+    def _count_recursive_calls(self, block, function_name):
+        """Cuenta el número total de llamadas recursivas en el bloque"""
+        count = 0
+        
+        def count_calls(node):
+            nonlocal count
+            if isinstance(node, dict):
+                if node.get("type") == "call" and node.get("name") == function_name:
+                    count += 1
+                for value in node.values():
+                    if isinstance(value, (dict, list)):
+                        count_calls(value)
+            elif isinstance(node, list):
+                for item in node:
+                    count_calls(item)
+        
+        count_calls(block)
+        return count
 
     # ------------------------------------------------------
     # Heurísticas básicas para detectar recursión
