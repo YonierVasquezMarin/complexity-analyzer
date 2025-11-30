@@ -1,0 +1,197 @@
+Eres un experto en análisis de algoritmos y complejidad computacional.
+
+PSEUDOCÓDIGO A ANALIZAR:
+{pseudocode}
+
+TAREA: Genera un análisis COMPLETO y DETALLADO que incluya:
+
+1. ANÁLISIS BÁSICO DE COMPLEJIDAD
+   - O (peor caso)
+   - Ω (mejor caso)  
+   - Θ (caso promedio)
+   - Indicar si hay cota fuerte
+
+2. ANÁLISIS PASO A PASO
+   - Descomponer el pseudocódigo línea por línea
+   - Explicar qué hace cada sección
+   - Indicar cuántas veces se ejecuta
+   - Calcular contribución a la complejidad
+
+3. CLASIFICACIÓN DE PATRONES ALGORÍTMICOS
+   - Identificar la técnica de diseño (Divide y Conquista, DP, Voraz, etc.)
+   - Nivel de confianza
+   - Características que lo identifican
+   - Algoritmos similares conocidos
+
+4. REPRESENTACIÓN MATEMÁTICA
+   - Para recursión: relación de recurrencia T(n)
+   - Método de solución (Teorema Maestro, sustitución, etc.)
+   - Pasos de la resolución matemática
+   - Para ciclos: sumatorias y expansiones
+   - Resultado final
+
+5. DIAGRAMA DE EJECUCIÓN
+   - Árbol de recursión (si aplica) en formato Mermaid
+   - Tabla de traza para n pequeño (ej: n=4)
+   - Diagrama de flujo si es relevante
+
+6. COSTO POR INSTRUCCIÓN
+   - Tiempo estimado por cada línea (en microsegundos)
+   - Número de ejecuciones de cada línea
+   - Costo total estimado
+   - Ejemplo concreto con n=1000
+
+IMPORTANTE: Debes responder ÚNICAMENTE con un objeto JSON válido que siga EXACTAMENTE el siguiente esquema:
+
+{{
+  "pseudocode": "...",
+  "basic_complexity": {{
+    "O": "O(n²)",
+    "Omega": "Ω(n)",
+    "Theta": "Θ(n²)" | "N/A",
+    "tight_bound": true | false,
+    "summary": "Explicación breve de la complejidad"
+  }},
+  "step_by_step_analysis": [
+    {{
+      "step": 1,
+      "code_line": "for i ← 1 to n do begin",
+      "explanation": "Ciclo externo que itera n veces",
+      "executions": "n",
+      "complexity_contribution": "O(n)",
+      "detailed_reasoning": "Este ciclo se ejecuta exactamente n veces..."
+    }},
+    {{
+      "step": 2,
+      "code_line": "for j ← 1 to n do begin",
+      "explanation": "Ciclo interno anidado",
+      "executions": "n × n = n²",
+      "complexity_contribution": "O(n) × O(n) = O(n²)",
+      "detailed_reasoning": "Por cada iteración del ciclo externo..."
+    }}
+  ],
+  "pattern_classification": {{
+    "primary_pattern": "Fuerza Bruta",
+    "confidence": 0.95,
+    "characteristics": [
+      "Exploración exhaustiva del espacio de soluciones",
+      "Dos ciclos anidados sin optimización",
+      "No aplica técnicas de poda"
+    ],
+    "similar_algorithms": [
+      "Búsqueda de pares con suma objetivo",
+      "Bubble Sort",
+      "Selection Sort"
+    ],
+    "alternative_approaches": "Podría optimizarse usando hashing para O(n)"
+  }},
+  "mathematical_representation": {{
+    "type": "recurrence" | "summation",
+    "recurrence_relation": "T(n) = 2T(n/2) + O(n)" | null,
+    "base_case": "T(1) = O(1)" | null,
+    "solution_method": "Teorema Maestro - Caso 2" | null,
+    "solution_steps": [
+      "Identificar parámetros: a=2, b=2, f(n)=n",
+      "Calcular: log_b(a) = log_2(2) = 1",
+      "Comparar: f(n) = Θ(n^1) = Θ(n^log_b(a))",
+      "Aplicar Caso 2: T(n) = Θ(n^1 × log n)",
+      "Resultado: T(n) = Θ(n log n)"
+    ] | null,
+    "summation": "Σ(i=1 to n) Σ(j=1 to n) O(1)" | null,
+    "expansion": "Σ(i=1 to n) n = n × n = n²" | null,
+    "final_result": "O(n²)",
+    "latex_notation": "T(n) = \\sum_{{i=1}}^{{n}} \\sum_{{j=1}}^{{n}} c" | null
+  }},
+  "execution_diagram": {{
+    "recursion_tree": {{
+      "format": "mermaid",
+      "diagram": "graph TD\\nA[T(n)] --> B[T(n/2)]\\nA --> C[T(n/2)]...",
+      "depth": "log n",
+      "nodes_per_level": [1, 2, 4, 8],
+      "work_per_level": ["n", "n", "n", "n"],
+      "total_work": "n × log n"
+    }} | null,
+    "trace_table": {{
+      "input_size": 4,
+      "iterations": [
+        {{"i": 1, "j": 1, "operation": "comparación", "cost": "1"}},
+        {{"i": 1, "j": 2, "operation": "comparación", "cost": "1"}},
+        "..."
+      ],
+      "total_operations": 16
+    }} | null,
+    "flowchart": {{
+      "format": "mermaid",
+      "diagram": "flowchart TD\\nStart --> Input\\nInput --> Loop1..."
+    }} | null
+  }},
+  "cost_analysis": {{
+    "instruction_breakdown": [
+      {{
+        "line": 1,
+        "code": "for i ← 1 to n",
+        "operation_type": "loop_control",
+        "executions_count": "n",
+        "time_per_execution_us": 0.5,
+        "total_time_formula": "0.5n",
+        "total_time_n_1000": "500 µs"
+      }},
+      {{
+        "line": 2,
+        "code": "for j ← 1 to n",
+        "operation_type": "loop_control",
+        "executions_count": "n²",
+        "time_per_execution_us": 0.5,
+        "total_time_formula": "0.5n²",
+        "total_time_n_1000": "500,000 µs"
+      }},
+      {{
+        "line": 3,
+        "code": "if (A[i][j] > max)",
+        "operation_type": "comparison + array_access",
+        "executions_count": "n²",
+        "time_per_execution_us": 0.8,
+        "total_time_formula": "0.8n²",
+        "total_time_n_1000": "800,000 µs"
+      }}
+    ],
+    "summary": {{
+      "total_time_formula": "1.8n² + 0.5n µs",
+      "for_n_10": "230 µs",
+      "for_n_100": "18,050 µs",
+      "for_n_1000": "1,800,500 µs (≈1.8 ms)",
+      "for_n_10000": "180,050,000 µs (≈180 ms)"
+    }}
+  }} | null,
+  "llm_metadata": {{
+    "model_used": "claude-sonnet-4-20250514",
+    "tokens": {{
+      "input": 450,
+      "output": 2100,
+      "total": 2550
+    }},
+    "estimated_cost_usd": 0.01275,
+    "processing_time_ms": 3500
+  }},
+  "recommendations": {{
+    "optimization_suggestions": [
+      "Considerar usar hashing para reducir a O(n)",
+      "Si los datos están ordenados, aplicar búsqueda binaria",
+      "Evaluar si se puede aplicar programación dinámica"
+    ],
+    "complexity_class": "Polinomial cuadrático",
+    "scalability": "Adecuado para n < 10,000. Para n > 100,000 considerar alternativas"
+  }}
+}}
+
+REGLAS CRÍTICAS:
+- Responde ÚNICAMENTE con el objeto JSON, sin texto adicional antes o después
+- NO uses bloques de código markdown (```json o ```)
+- NO agregues explicaciones fuera del JSON
+- El JSON debe ser válido y parseable
+- Usa null para campos opcionales que no apliquen
+- Para los diagramas Mermaid, usa \\n para representar saltos de línea dentro de las strings
+- Asegúrate de que todos los campos requeridos estén presentes
+- Los valores numéricos deben ser números (no strings) cuando corresponda
+- Los arrays deben contener objetos del tipo correcto
+

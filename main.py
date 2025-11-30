@@ -2,7 +2,8 @@ from fastapi import FastAPI, HTTPException
 from typing import Union
 from services.analysis_service import analyze_pseudocode
 from services.completion_service import CompletionService
-from models.requests import AnalyzeCodeRequest, CompleteCodeRequest
+from services.llm_analysis_service import LLMAnalysisService
+from models.requests import AnalyzeCodeRequest, CompleteCodeRequest, AnalyzeByLLMRequest
 from models.responses import (
     RootResponse,
     HealthResponse,
@@ -10,7 +11,8 @@ from models.responses import (
     AnalyzeCodeResponse,
     AnalyzeCodeErrorResponse,
     CompleteCodeResponse,
-    ComplexityDetails
+    ComplexityDetails,
+    AnalyzeByLLMResponse
 )
 from dotenv import load_dotenv
 
@@ -110,3 +112,37 @@ def complete_code_endpoint(request: CompleteCodeRequest):
         raise HTTPException(status_code=500, detail=str(e))
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Error al completar el código: {str(e)}")
+
+
+@app.post("/analyze-by-llm", response_model=AnalyzeByLLMResponse)
+def analyze_by_llm_endpoint(request: AnalyzeByLLMRequest):
+    """
+    Endpoint para analizar pseudocódigo usando LLM.
+    Recibe un payload con el pseudocódigo y genera un análisis completo
+    e independiente de complejidad computacional.
+    
+    El análisis incluye:
+    - Análisis básico de complejidad (O, Ω, Θ)
+    - Análisis paso a paso
+    - Clasificación de patrones algorítmicos
+    - Representación matemática
+    - Diagramas de ejecución
+    - Análisis de costo por instrucción
+    - Recomendaciones de optimización
+    
+    Retorna:
+    - Análisis completo de complejidad generado por LLM
+    """
+    try:
+        analysis_service = LLMAnalysisService()
+        analysis_result = analysis_service.analyze_pseudocode(request.pseudocode)
+        
+        # Convertir el diccionario a la respuesta tipada
+        return AnalyzeByLLMResponse(**analysis_result)
+        
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))
+    except FileNotFoundError as e:
+        raise HTTPException(status_code=500, detail=str(e))
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Error al analizar el pseudocódigo: {str(e)}")

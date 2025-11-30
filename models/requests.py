@@ -40,3 +40,20 @@ class CompleteCodeRequest(BaseModel):
             }
         }
 
+
+class AnalyzeByLLMRequest(BaseModel):
+    """
+    Modelo de entrada para el endpoint /analyze-by-llm
+    """
+    pseudocode: str = Field(
+        ...,
+        description="Pseudocódigo a analizar",
+        min_length=1
+    )
+
+    class Config:
+        json_schema_extra = {
+            "example": {
+                "pseudocode": "for i ← 1 to n do begin\n    for j ← 1 to n do begin\n        if (A[i][j] > max) then\n            max ← A[i][j]\n        end\n    end\nend"
+            }
+        }
