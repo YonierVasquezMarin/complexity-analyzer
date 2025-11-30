@@ -75,6 +75,48 @@ class CompletionService:
         """
         return template.format(grammar=grammar, code=code)
     
+    def _clean_markdown_blocks(self, code: str) -> str:
+        """
+        Limpia bloques de código markdown que el LLM pueda haber generado.
+        Remueve triple comillas invertidas (```) al inicio y final del código.
+        
+        Args:
+            code: El código a limpiar
+            
+        Returns:
+            El código sin bloques de markdown
+        """
+        # Remover bloques de código markdown (``` al inicio y final)
+        # Patrón: ``` opcionalmente seguido de un identificador de lenguaje, luego el código, luego ```
+        code = code.strip()
+        
+        # Remover triple comillas invertidas al inicio
+        if code.startswith('```'):
+            # Encontrar el primer salto de línea después de ```
+            lines = code.split('\n')
+            if len(lines) > 0 and lines[0].startswith('```'):
+                # Remover la primera línea (``` o ```language)
+                lines = lines[1:]
+                code = '\n'.join(lines)
+        
+        # Remover triple comillas invertidas al final
+        if code.endswith('```'):
+            # Encontrar el último salto de línea antes de ```
+            lines = code.split('\n')
+            if len(lines) > 0 and lines[-1].strip() == '```':
+                # Remover la última línea (```)
+                lines = lines[:-1]
+                code = '\n'.join(lines)
+        
+        # También remover si está al inicio/final sin saltos de línea
+        code = code.strip()
+        if code.startswith('```'):
+            code = code.lstrip('`')
+        if code.endswith('```'):
+            code = code.rstrip('`')
+        
+        return code.strip()
+    
     def complete_code(self, code: str) -> Tuple[str, bool]:
         """
         Completa el pseudocódigo si tiene comentarios de completado
@@ -101,6 +143,9 @@ class CompletionService:
             
             # Generar completación con LLM
             completed_code = self.llm_service.generate_completion(prompt)
+            
+            # Limpiar bloques de markdown que el LLM pueda haber generado
+            completed_code = self._clean_markdown_blocks(completed_code)
             
             # Limpiar el código generado
             # Eliminar espacios en blanco al inicio, pero preservar saltos de línea al final si el original los tenía

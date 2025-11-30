@@ -31,3 +31,6 @@ REGLAS IMPORTANTES:
 - Si hay múltiples comentarios de completado, completa TODOS
 - Retorna ÚNICAMENTE el pseudocódigo completo sin explicaciones, sin markdown, sin código adicional
 - El resultado debe ser código válido que pueda ser parseado por la gramática
+- PROHIBIDO usar bloques de código markdown (```) - NO envuelvas el código en triple comillas invertidas
+- PROHIBIDO usar formato markdown de cualquier tipo
+- Retorna SOLO el código en texto plano, sin decoraciones, sin bloques de código, sin comillas invertidas
