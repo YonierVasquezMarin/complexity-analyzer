@@ -67,7 +67,6 @@ def complete_code_endpoint(payload: dict):
     
     Retorna:
     - code: El pseudocódigo completo (original o completado)
-    - extendedByLlm: True si se usó IA para completar, False en caso contrario
     """
     try:
         pseudocode = payload.get("code", "")
@@ -79,11 +78,10 @@ def complete_code_endpoint(payload: dict):
             )
         
         completion_service = CompletionService()
-        completed_code, extended_by_llm = completion_service.complete_code(pseudocode)
+        completed_code = completion_service.complete_code(pseudocode)
         
         return {
-            "code": completed_code,
-            "extendedByLlm": extended_by_llm
+            "code": completed_code
         }
         
     except ValueError as e:

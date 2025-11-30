@@ -5,7 +5,6 @@ Detecta comentarios con "completar" o "Completar" y genera código faltante
 
 import os
 import re
-from typing import Tuple
 from services.llm_service import LLMService
 
 
@@ -117,7 +116,7 @@ class CompletionService:
         
         return code.strip()
     
-    def complete_code(self, code: str) -> Tuple[str, bool]:
+    def complete_code(self, code: str) -> str:
         """
         Completa el pseudocódigo si tiene comentarios de completado
         
@@ -125,13 +124,11 @@ class CompletionService:
             code: El pseudocódigo a completar
             
         Returns:
-            Tupla con (código_completado, extendido_por_llm)
-            - código_completado: El código original o completado
-            - extendido_por_llm: True si se usó IA para completar, False en caso contrario
+            El código completado (original si no hay comentarios de completado, o completado por IA)
         """
         # Verificar si hay comentarios de completado
         if not self._has_completion_comments(code):
-            return code, False
+            return code
         
         try:
             # Cargar template y gramática
@@ -159,7 +156,7 @@ class CompletionService:
                 # Si el original no terminaba con salto de línea, eliminar el del generado
                 completed_code = completed_code.rstrip('\n')
             
-            return completed_code, True
+            return completed_code
             
         except Exception as e:
             # Si hay un error, retornar el código original
