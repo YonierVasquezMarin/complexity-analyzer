@@ -31,8 +31,16 @@ TAREA: Genera un análisis COMPLETO y DETALLADO que incluya:
    - Resultado final
 
 5. DIAGRAMA DE EJECUCIÓN
-   - Árbol de recursión (si aplica) en formato Mermaid
-   - Diagrama de flujo si es relevante
+   - Todos los diagramas Mermaid deben usar SIEMPRE nodos encerrados en comillas dobles, por ejemplo: A["fib(4)"], Start["Inicio"], Node["Texto con espacios"]
+   - Los saltos de línea deben escribirse como \\n dentro de la cadena del JSON
+   - No usar paréntesis, espacios, guiones o caracteres especiales sin encerrarlos en comillas
+   - El diagrama debe ser válido según el estándar moderno de Mermaid.js
+   - Para diagramas de flujo usar "flowchart TD"
+   - Para árboles de recursión usar "graph TD"
+   - Usar únicamente esta sintaxis de flechas:
+       A --> B
+       A -->|label| B
+   - No agregar indentación excesiva dentro de la cadena Mermaid (Mermaid es sensible a tabulaciones dentro de JSON)
 
 6. COSTO POR INSTRUCCIÓN
    - Tiempo estimado por cada línea (en microsegundos)
