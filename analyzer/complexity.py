@@ -321,23 +321,102 @@ class ComplexityAnalyzer:
         name = node.get("name")
         
         # Detectar recursión
-        recursive = self._detect_recursion(node)
+        recursive_type = self._detect_recursion(node)
+        
+        # Detectar si hay salida temprana (return antes de recursión)
+        has_early_return = self._has_early_return_before_recursion(block, name)
 
         body_result = self._analyze_node(block)
 
-        if recursive == "simple":
+        if recursive_type == "simple":
             self.details["recursion"] = "T(n) = T(n-1) + cost"
+            if has_early_return:
+                return ComplexityResult(best="1", worst="n")
             return ComplexityResult(best="n", worst="n")
 
-        if recursive == "divide":
-            self.details["recursion"] = "T(n) = 2T(n/2) + cost"
-            return ComplexityResult(best="n log n", worst="n log n")
+        if recursive_type == "divide":
+            if has_early_return:
+                self.details["recursion"] = "T(n) = T(n/2) + cost con salida temprana"
+                return ComplexityResult(best="1", worst="log n")
+            else:
+                self.details["recursion"] = "T(n) = 2T(n/2) + cost"
+                return ComplexityResult(best="n log n", worst="n log n")
         
-        if recursive == "exponential":
+        if recursive_type == "exponential":
             # La recursión ya fue registrada en _detect_recursion con el número exacto de llamadas
             return ComplexityResult(best="2^n", worst="2^n")
 
         return body_result
+
+    # ------------------------------------------------------
+    # Detectar salida temprana en recursión
+    # ------------------------------------------------------
+    
+    def _has_early_return_before_recursion(self, block, function_name):
+        """
+        Detecta si hay un return condicional ANTES de las llamadas recursivas.
+        Ejemplo: if (condición) then return valor
+        """
+        if not isinstance(block, dict):
+            return False
+        
+        # Buscar estructura: if (...) then return (sin llamada recursiva en ese branch)
+        def search_early_return(node):
+            if not isinstance(node, dict):
+                return False
+            
+            node_type = node.get("type")
+            
+            # Si es un IF
+            if node_type == "if":
+                then_block = node.get("then")
+                
+                # Verificar si el THEN tiene return sin recursión
+                if then_block:
+                    has_return = self._contains_return(then_block)
+                    has_recursion = self._contains_call_to(then_block, function_name)
+                    
+                    if has_return and not has_recursion:
+                        return True
+            
+            # Buscar recursivamente en el árbol
+            if node_type == "block":
+                body = node.get("body", [])
+                for item in body:
+                    if search_early_return(item):
+                        return True
+            
+            return False
+        
+        return search_early_return(block)
+    
+    def _contains_return(self, node):
+        """Verifica si un nodo contiene return"""
+        if isinstance(node, dict):
+            if node.get("type") == "return":
+                return True
+            for value in node.values():
+                if isinstance(value, (dict, list)) and self._contains_return(value):
+                    return True
+        elif isinstance(node, list):
+            for item in node:
+                if self._contains_return(item):
+                    return True
+        return False
+    
+    def _contains_call_to(self, node, function_name):
+        """Verifica si un nodo contiene llamada a una función específica"""
+        if isinstance(node, dict):
+            if node.get("type") == "call" and node.get("name") == function_name:
+                return True
+            for value in node.values():
+                if isinstance(value, (dict, list)) and self._contains_call_to(value, function_name):
+                    return True
+        elif isinstance(node, list):
+            for item in node:
+                if self._contains_call_to(item, function_name):
+                    return True
+        return False
 
     # ------------------------------------------------------
     # Heurísticas básicas para detectar recursión
