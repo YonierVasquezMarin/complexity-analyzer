@@ -98,7 +98,7 @@ Método principal que ejecuta el proceso de completado:
 **Request Body:**
 ```json
 {
-  "code": "código en pseudocódigo con comentarios ► Completar..."
+  "pseudocode": "código en pseudocódigo con comentarios ► Completar..."
 }
 ```
 
@@ -118,7 +118,7 @@ Método principal que ejecuta el proceso de completado:
 
 **Códigos de estado:**
 - `200`: Completado exitoso
-- `400`: Campo 'code' faltante o vacío
+- `400`: Campo 'pseudocode' faltante o vacío
 - `500`: Error interno (API key no configurada, error de comunicación con LLM, etc.)
 
 ## Ejemplos de Uso
@@ -198,7 +198,7 @@ import requests
 
 url = "http://localhost:8000/complete-code"
 payload = {
-    "code": """
+    "pseudocode": """
     for i 🡨 1 to n do begin
         ► Completar el cuerpo del ciclo
     end

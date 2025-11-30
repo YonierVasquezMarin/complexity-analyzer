@@ -56,7 +56,7 @@ Una vez iniciado el servidor, la API estará disponible en:
 ```bash
 curl -X POST "http://localhost:8000/analyze-by-system" \
   -H "Content-Type: application/json" \
-  -d '{"code": "for i ← 1 to n do begin\n    x ← x + 1\nend"}'
+  -d '{"pseudocode": "for i ← 1 to n do begin\n    x ← x + 1\nend"}'
 ```
 
 ## Funciones Principales

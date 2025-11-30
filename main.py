@@ -61,10 +61,10 @@ async def get_info():
 def analyze_endpoint(request: AnalyzeCodeRequest):
     """
     Endpoint para analizar la complejidad de pseudocódigo.
-    Recibe un payload con el código en el campo 'code' y devuelve
+    Recibe un payload con el código en el campo 'pseudocode' y devuelve
     el análisis de complejidad.
     """
-    result = analyze_pseudocode(request.code)
+    result = analyze_pseudocode(request.pseudocode)
     
     # Verificar si hay un error en la respuesta
     if "error" in result:
@@ -93,7 +93,7 @@ def analyze_endpoint(request: AnalyzeCodeRequest):
 def complete_code_endpoint(request: CompleteCodeRequest):
     """
     Endpoint para completar pseudocódigo usando IA.
-    Recibe un payload con el código en el campo 'code' y detecta
+    Recibe un payload con el código en el campo 'pseudocode' y detecta
     comentarios que inician con "completar" o "Completar" para
     generar el código faltante.
     
@@ -102,7 +102,7 @@ def complete_code_endpoint(request: CompleteCodeRequest):
     """
     try:
         completion_service = CompletionService()
-        completed_code = completion_service.complete_code(request.code)
+        completed_code = completion_service.complete_code(request.pseudocode)
         
         return CompleteCodeResponse(code=completed_code)
         

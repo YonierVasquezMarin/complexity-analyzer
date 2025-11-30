@@ -9,7 +9,7 @@ class AnalyzeCodeRequest(BaseModel):
     """
     Modelo de entrada para el endpoint /analyze-by-system
     """
-    code: str = Field(
+    pseudocode: str = Field(
         ...,
         description="Código en pseudocódigo a analizar",
         min_length=1
@@ -18,7 +18,7 @@ class AnalyzeCodeRequest(BaseModel):
     class Config:
         json_schema_extra = {
             "example": {
-                "code": "for i 🡨 1 to n do begin\n    x 🡨 x + i\nend"
+                "pseudocode": "for i 🡨 1 to n do begin\n    x 🡨 x + i\nend"
             }
         }
 
@@ -27,7 +27,7 @@ class CompleteCodeRequest(BaseModel):
     """
     Modelo de entrada para el endpoint /complete-code
     """
-    code: str = Field(
+    pseudocode: str = Field(
         ...,
         description="Código en pseudocódigo a completar",
         min_length=1
@@ -36,7 +36,7 @@ class CompleteCodeRequest(BaseModel):
     class Config:
         json_schema_extra = {
             "example": {
-                "code": "for i 🡨 1 to n do begin\n    ► Completar la operación de suma\nend"
+                "pseudocode": "for i 🡨 1 to n do begin\n    ► Completar la operación de suma\nend"
             }
         }
 

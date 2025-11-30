@@ -72,7 +72,7 @@ class CompletionService:
         Returns:
             El prompt completo listo para enviar al LLM
         """
-        return template.format(grammar=grammar, code=code)
+        return template.format(grammar=grammar, pseudocode=code)
     
     def _clean_markdown_blocks(self, code: str) -> str:
         """

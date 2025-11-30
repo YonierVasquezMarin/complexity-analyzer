@@ -21,7 +21,7 @@ GRAMÁTICA DEL PSEUDOCÓDIGO:
 {grammar}
 
 PSEUDOCÓDIGO A COMPLETAR:
-{code}
+{pseudocode}
 
 REGLAS IMPORTANTES:
 - El código generado DEBE ser válido según la gramática proporcionada
