@@ -24,12 +24,12 @@ def test_recursive_binary_search():
     
     # Resultado esperado
     expected_result = {
-        "O": "O(2^n)",
-        "Omega": "Ω(2^n)",
-        "Theta": "Θ(2^n)",
+        "O": "O(n log n)",
+        "Omega": "Ω(n log n)",
+        "Theta": "Θ(n log n)",
         "details": {
             "loops": [],
-            "recursion": "T(n) = 2T(n-1) + cost (exponencial)",
+            "recursion": "T(n) = 2T(n/2) + cost",
             "combination": "Suma de complejidades secuenciales",
             "early_exit_detected": False
         }

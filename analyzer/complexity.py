@@ -351,11 +351,43 @@ class ComplexityAnalyzer:
         if not name or not block:
             return None
 
-        # Contador de llamadas recursivas
+        # Contar llamadas recursivas Y detectar si están en ramas mutuamente excluyentes
         recursive_calls = []
+        mutually_exclusive = False
 
-        def search(n, path=""):
+        def search(n, path="", in_if_branch=False):
+            nonlocal mutually_exclusive
+            
             if isinstance(n, dict):
+                # Detectar si estamos en un IF-ELSE con llamadas recursivas en ambas ramas
+                if n.get("type") == "if":
+                    then_block = n.get("then")
+                    else_block = n.get("else")
+                    
+                    # Buscar llamadas en cada rama
+                    then_calls = []
+                    else_calls = []
+                    
+                    def count_calls(block, calls_list):
+                        if isinstance(block, dict):
+                            if block.get("type") == "call" and block.get("name") == name:
+                                calls_list.append(True)
+                            for value in block.values():
+                                if isinstance(value, (dict, list)):
+                                    count_calls(value, calls_list)
+                        elif isinstance(block, list):
+                            for item in block:
+                                count_calls(item, calls_list)
+                    
+                    if then_block:
+                        count_calls(then_block, then_calls)
+                    if else_block:
+                        count_calls(else_block, else_calls)
+                    
+                    # Si ambas ramas tienen llamadas recursivas, son mutuamente excluyentes
+                    if then_calls and else_calls:
+                        mutually_exclusive = True
+                
                 # Verificar si es una llamada con el mismo nombre
                 if n.get("type") == "call":
                     call_name = n.get("name")
@@ -365,7 +397,7 @@ class ComplexityAnalyzer:
                 
                 # Buscar recursivamente en todos los valores
                 for key, value in n.items():
-                    if key != "name":  # Evitar falsos positivos con el nombre del nodo
+                    if key != "name":
                         if isinstance(value, (dict, list)):
                             search(value, path + f"/{key}")
             elif isinstance(n, list):
@@ -390,8 +422,14 @@ class ComplexityAnalyzer:
         
         has_division = any(pattern.replace(" ", "") in text for pattern in division_patterns)
         
-        # Recursión múltiple (2 o más llamadas) = Exponencial
-        if len(recursive_calls) >= 2:
+        # Si hay múltiples llamadas pero son mutuamente excluyentes (if-else)
+        # Y además divide el problema, es divide y conquista
+        if len(recursive_calls) >= 2 and mutually_exclusive and has_division:
+            self.details["recursion"] = "T(n) = T(n/2) + cost (búsqueda binaria)"
+            return "divide"
+        
+        # Recursión múltiple NO excluyente (ambas se ejecutan) = Exponencial
+        if len(recursive_calls) >= 2 and not mutually_exclusive:
             self.details["recursion"] = f"T(n) = {len(recursive_calls)}T(n-1) + cost (exponencial)"
             return "exponential"
         
