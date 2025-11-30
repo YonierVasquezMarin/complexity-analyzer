@@ -2,7 +2,7 @@
 Modelos de salida (responses) para los endpoints de la API
 """
 
-from typing import List, Optional, Union
+from typing import List, Optional
 from pydantic import BaseModel, Field, ConfigDict
 
 
@@ -185,23 +185,6 @@ class RecursionTree(BaseModel):
     total_work: Optional[str] = Field(None, description="Trabajo total")
 
 
-class TraceTableItem(BaseModel):
-    """Item de la tabla de traza"""
-    model_config = ConfigDict(extra='allow')  # Permitir campos adicionales
-    
-    i: Optional[int] = Field(None, description="Valor de i")
-    j: Optional[int] = Field(None, description="Valor de j")
-    operation: Optional[str] = Field(None, description="Operación realizada")
-    cost: Optional[str] = Field(None, description="Costo de la operación")
-
-
-class TraceTable(BaseModel):
-    """Tabla de traza para n pequeño"""
-    input_size: int = Field(..., description="Tamaño de entrada usado")
-    iterations: List[TraceTableItem] = Field(..., description="Iteraciones de la traza")
-    total_operations: int = Field(..., description="Total de operaciones")
-
-
 class Flowchart(BaseModel):
     """Diagrama de flujo"""
     format: str = Field(..., description="Formato del diagrama (ej: 'mermaid')")
@@ -211,7 +194,6 @@ class Flowchart(BaseModel):
 class ExecutionDiagram(BaseModel):
     """Diagramas de ejecución"""
     recursion_tree: Optional[RecursionTree] = Field(None, description="Árbol de recursión")
-    trace_table: Optional[TraceTable] = Field(None, description="Tabla de traza")
     flowchart: Optional[Flowchart] = Field(None, description="Diagrama de flujo")
 
 
@@ -258,13 +240,6 @@ class LLMMetadata(BaseModel):
     processing_time_ms: Optional[float] = Field(None, description="Tiempo de procesamiento en ms")
 
 
-class Recommendations(BaseModel):
-    """Recomendaciones de optimización"""
-    optimization_suggestions: List[str] = Field(..., description="Sugerencias de optimización")
-    complexity_class: str = Field(..., description="Clase de complejidad")
-    scalability: str = Field(..., description="Información sobre escalabilidad")
-
-
 class AnalyzeByLLMResponse(BaseModel):
     """
     Modelo de salida para el endpoint POST /analyze-by-llm
@@ -278,4 +253,3 @@ class AnalyzeByLLMResponse(BaseModel):
     execution_diagram: Optional[ExecutionDiagram] = Field(None, description="Diagramas de ejecución")
     cost_analysis: Optional[CostAnalysis] = Field(None, description="Análisis de costo")
     llm_metadata: LLMMetadata = Field(..., description="Metadatos del LLM")
-    recommendations: Recommendations = Field(..., description="Recomendaciones")

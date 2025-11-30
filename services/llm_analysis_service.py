@@ -143,9 +143,6 @@ class LLMAnalysisService:
             if "cost_analysis" not in analysis_dict:
                 analysis_dict["cost_analysis"] = None
             
-            print()
-            print(analysis_dict)
-            print()
             return analysis_dict
             
         except Exception as e:
