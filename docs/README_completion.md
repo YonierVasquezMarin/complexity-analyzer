@@ -105,7 +105,7 @@ Método principal que ejecuta el proceso de completado:
 **Response (éxito):**
 ```json
 {
-  "code": "código completado sin comentarios"
+  "pseudocode": "código completado sin comentarios"
 }
 ```
 
@@ -207,7 +207,7 @@ payload = {
 
 response = requests.post(url, json=payload)
 result = response.json()
-print(result["code"])
+print(result["pseudocode"])
 ```
 
 ## Configuración Requerida

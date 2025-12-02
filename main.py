@@ -108,13 +108,13 @@ def complete_code_endpoint(request: CompleteCodeRequest):
     generar el código faltante.
     
     Retorna:
-    - code: El pseudocódigo completo (original o completado)
+    - pseudocode: El pseudocódigo completo (original o completado)
     """
     try:
         completion_service = CompletionService()
         completed_code = completion_service.complete_code(request.pseudocode)
         
-        return CompleteCodeResponse(code=completed_code)
+        return CompleteCodeResponse(pseudocode=completed_code)
         
     except ValueError as e:
         raise HTTPException(status_code=500, detail=str(e))

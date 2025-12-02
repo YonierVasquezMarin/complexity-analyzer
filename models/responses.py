@@ -123,12 +123,12 @@ class CompleteCodeResponse(BaseModel):
     """
     Modelo de salida para el endpoint POST /complete-code
     """
-    code: str = Field(..., description="Código completado (o original si no había comentarios de completado)")
+    pseudocode: str = Field(..., description="Pseudocódigo completado (o original si no había comentarios de completado)")
 
     class Config:
         json_schema_extra = {
             "example": {
-                "code": "for i 🡨 1 to n do begin\n    x 🡨 x + i\nend"
+                "pseudocode": "for i 🡨 1 to n do begin\n    x 🡨 x + i\nend"
             }
         }
 
