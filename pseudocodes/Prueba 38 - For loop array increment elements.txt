@@ -1,0 +1,3 @@
+array arr[10]
+► Completar: crear bucle for que recorra el array e incremente cada elemento
+

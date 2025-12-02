@@ -1,0 +1,3 @@
+x 🡨 5
+► Completar: agregar condicional if que verifique si x > 0
+

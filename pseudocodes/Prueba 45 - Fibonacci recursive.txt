@@ -1,0 +1,7 @@
+fibonacci(n) begin
+if (n < 2) then begin
+return n
+end
+return CALL fibonacci(n - 1) + CALL fibonacci(n - 2)
+end
+

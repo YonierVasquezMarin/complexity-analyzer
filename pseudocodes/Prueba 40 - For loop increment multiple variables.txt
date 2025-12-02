@@ -1,0 +1,5 @@
+x 🡨 0
+y 🡨 0
+► Completar: crear bucle for que incremente ambas variables
+z 🡨 x + y
+

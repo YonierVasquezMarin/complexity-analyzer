@@ -1,0 +1,16 @@
+busquedaBinaria(A, objetivo, inicio, fin) begin
+if (inicio > fin) then begin
+return NULL
+end
+mitad 🡨 (inicio + fin) div 2
+if (A[mitad] = objetivo) then begin
+return mitad
+end
+if (A[mitad] > objetivo) then begin
+return CALL busquedaBinaria(A, objetivo, inicio, mitad - 1)
+end
+else begin
+return CALL busquedaBinaria(A, objetivo, mitad + 1, fin)
+end
+end
+

@@ -1,0 +1,2 @@
+► Completar: crear todo el pseudocódigo para calcular la suma de números del 1 al n
+

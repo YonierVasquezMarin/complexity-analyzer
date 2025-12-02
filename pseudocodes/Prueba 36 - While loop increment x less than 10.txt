@@ -1,0 +1,3 @@
+x 🡨 0
+► Completar: crear bucle while que incremente x mientras x < 10
+

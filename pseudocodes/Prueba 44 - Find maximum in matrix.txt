@@ -1,0 +1,12 @@
+encontrarMaximo(matriz, filas, columnas) begin
+max 🡨 matriz[1][1]
+for i 🡨 1 to filas do begin
+for j 🡨 1 to columnas do begin
+if (matriz[i][j] > max) then begin
+max 🡨 matriz[i][j]
+end
+end
+end
+return max
+end
+

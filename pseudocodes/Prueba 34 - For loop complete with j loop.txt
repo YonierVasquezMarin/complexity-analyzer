@@ -1,0 +1,2 @@
+for i 🡨 1 to n do begin x 🡨 x + 1 end ► Completar: poner otro bucle pero con la letra j
+
