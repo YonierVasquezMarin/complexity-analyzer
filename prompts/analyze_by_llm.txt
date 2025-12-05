@@ -41,7 +41,7 @@ TAREA: Genera un análisis COMPLETO y DETALLADO que incluya:
        A --> B
        A -->|label| B
    - No agregar indentación excesiva dentro de la cadena Mermaid (Mermaid es sensible a tabulaciones dentro de JSON)
-   - IMPORTANTE - ESTILO DE COLORES: Todos los diagramas deben usar escala de grises/monocromática
+   - IMPORTANTE - ESTILO DE COLORES: Todos los diagramas deben usar escala de grises, usar el color #1f2020 como fondo de los nodos
 6. COSTO POR INSTRUCCIÓN
    - Tiempo estimado por cada línea (en microsegundos)
    - Número de ejecuciones de cada línea
